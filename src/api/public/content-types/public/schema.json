@@ -1,0 +1,58 @@
+{
+  "kind": "collectionType",
+  "collectionName": "publics",
+  "info": {
+    "singularName": "public",
+    "pluralName": "publics",
+    "displayName": "Publication"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "paper_title": {
+      "type": "string"
+    },
+    "journal_name": {
+      "type": "string"
+    },
+    "author": {
+      "type": "component",
+      "component": "list-of-details.person",
+      "repeatable": true
+    },
+    "impact_factor": {
+      "type": "decimal"
+    },
+    "classification": {
+      "type": "enumeration",
+      "enum": [
+        "WWoS Q1",
+        "WWoS Q2",
+        "WWoS Q3",
+        "WWoS Q4",
+        "Conference Paper",
+        "Scopus-indexed",
+        "Non-indexed"
+      ]
+    },
+    "patent": {
+      "type": "string",
+      "default": "none"
+    },
+    "doi": {
+      "type": "string"
+    },
+    "executive_summary": {
+      "type": "component",
+      "component": "list-of-details.text",
+      "repeatable": true
+    },
+    "funding_section": {
+      "type": "component",
+      "component": "list-of-details.funding",
+      "repeatable": true
+    }
+  }
+}

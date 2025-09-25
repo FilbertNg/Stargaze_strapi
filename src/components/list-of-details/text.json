@@ -1,0 +1,23 @@
+{
+  "collectionName": "components_list_of_details_texts",
+  "info": {
+    "displayName": "text"
+  },
+  "options": {},
+  "attributes": {
+    "text_type": {
+      "type": "enumeration",
+      "required": true,
+      "enum": [
+        "Heading",
+        "Subheading",
+        "Paragraph"
+      ]
+    },
+    "text": {
+      "type": "text",
+      "required": true
+    }
+  },
+  "config": {}
+}

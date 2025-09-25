@@ -1,0 +1,64 @@
+{
+  "kind": "collectionType",
+  "collectionName": "grants_n_projects",
+  "info": {
+    "singularName": "grants-n-project",
+    "pluralName": "grants-n-projects",
+    "displayName": "Grants n project"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "pi_name": {
+      "type": "string",
+      "required": true
+    },
+    "total_funding": {
+      "type": "biginteger",
+      "required": true,
+      "default": "0",
+      "min": "0"
+    },
+    "scheme_name": {
+      "type": "string",
+      "required": true
+    },
+    "project_title": {
+      "type": "string",
+      "required": true
+    },
+    "start_date": {
+      "type": "date"
+    },
+    "end_date": {
+      "type": "date"
+    },
+    "team_members": {
+      "type": "component",
+      "component": "list-of-details.person",
+      "repeatable": true
+    },
+    "collaborator": {
+      "type": "component",
+      "component": "list-of-details.collaborator",
+      "repeatable": true
+    },
+    "project_output": {
+      "type": "component",
+      "component": "list-of-details.project-output",
+      "repeatable": true
+    },
+    "graphical_abstract": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    }
+  }
+}

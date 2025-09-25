@@ -1,0 +1,20 @@
+{
+  "collectionName": "components_list_of_details_project_outputs",
+  "info": {
+    "displayName": "project_output"
+  },
+  "options": {},
+  "attributes": {
+    "project_title": {
+      "type": "string"
+    },
+    "citation": {
+      "type": "text"
+    },
+    "patent": {
+      "type": "string",
+      "default": "none"
+    }
+  },
+  "config": {}
+}
