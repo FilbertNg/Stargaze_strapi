@@ -385,6 +385,7 @@ export interface ApiGrantsNProjectGrantsNProject
     draftAndPublish: false;
   };
   attributes: {
+    citation: Schema.Attribute.Text;
     collaborator: Schema.Attribute.Component<
       'list-of-details.collaborator',
       true
@@ -392,7 +393,9 @@ export interface ApiGrantsNProjectGrantsNProject
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    end_date: Schema.Attribute.Date;
+    end_date: Schema.Attribute.Date & Schema.Attribute.Required;
+    grant_code: Schema.Attribute.String & Schema.Attribute.Required;
+    grant_scheme_name: Schema.Attribute.String & Schema.Attribute.Required;
     graphical_abstract: Schema.Attribute.Media<
       'images' | 'files' | 'videos' | 'audios'
     >;
@@ -402,16 +405,19 @@ export interface ApiGrantsNProjectGrantsNProject
       'api::grants-n-project.grants-n-project'
     > &
       Schema.Attribute.Private;
+    on_time: Schema.Attribute.Boolean &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<false>;
     pi_name: Schema.Attribute.String & Schema.Attribute.Required;
     project_output: Schema.Attribute.Component<
       'list-of-details.project-output',
-      true
+      false
     >;
     project_title: Schema.Attribute.String & Schema.Attribute.Required;
     publishedAt: Schema.Attribute.DateTime;
-    scheme_name: Schema.Attribute.String & Schema.Attribute.Required;
-    start_date: Schema.Attribute.Date;
-    team_members: Schema.Attribute.Component<'list-of-details.person', true>;
+    start_date: Schema.Attribute.Date & Schema.Attribute.Required;
+    team_members: Schema.Attribute.Component<'list-of-details.person', true> &
+      Schema.Attribute.Required;
     total_funding: Schema.Attribute.BigInteger &
       Schema.Attribute.Required &
       Schema.Attribute.SetMinMax<
@@ -421,6 +427,10 @@ export interface ApiGrantsNProjectGrantsNProject
         string
       > &
       Schema.Attribute.DefaultTo<'0'>;
+    type_of_grants: Schema.Attribute.Enumeration<
+      ['national grants', 'industry grants', 'internal grants']
+    > &
+      Schema.Attribute.Required;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -438,7 +448,7 @@ export interface ApiNewNew extends Struct.CollectionTypeSchema {
     draftAndPublish: false;
   };
   attributes: {
-    content: Schema.Attribute.Component<'list-of-details.text', true>;
+    cover_picture: Schema.Attribute.Media<'images'> & Schema.Attribute.Required;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -446,7 +456,7 @@ export interface ApiNewNew extends Struct.CollectionTypeSchema {
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::new.new'> &
       Schema.Attribute.Private;
-    media: Schema.Attribute.Media<'images' | 'files'>;
+    news_content: Schema.Attribute.RichText;
     publishedAt: Schema.Attribute.DateTime;
     title: Schema.Attribute.String & Schema.Attribute.Required;
     updatedAt: Schema.Attribute.DateTime;
@@ -466,8 +476,17 @@ export interface ApiPublicPublic extends Struct.CollectionTypeSchema {
     draftAndPublish: false;
   };
   attributes: {
-    author: Schema.Attribute.Component<'list-of-details.person', true>;
-    classification: Schema.Attribute.Enumeration<
+    author: Schema.Attribute.Component<'list-of-details.person', true> &
+      Schema.Attribute.Required;
+    citation: Schema.Attribute.Text;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    doi_link: Schema.Attribute.String & Schema.Attribute.Required;
+    executive_summary: Schema.Attribute.RichText;
+    funding_section: Schema.Attribute.RichText;
+    impact_factor: Schema.Attribute.Decimal;
+    indexing_classification: Schema.Attribute.Enumeration<
       [
         'WWoS Q1',
         'WWoS Q2',
@@ -478,29 +497,26 @@ export interface ApiPublicPublic extends Struct.CollectionTypeSchema {
         'Non-indexed',
       ]
     >;
-    createdAt: Schema.Attribute.DateTime;
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    doi: Schema.Attribute.String;
-    executive_summary: Schema.Attribute.Component<'list-of-details.text', true>;
-    funding_section: Schema.Attribute.Component<
-      'list-of-details.funding',
-      true
-    >;
-    impact_factor: Schema.Attribute.Decimal;
-    journal_name: Schema.Attribute.String;
+    issue: Schema.Attribute.Integer;
+    journal_name: Schema.Attribute.String & Schema.Attribute.Required;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
       'api::public.public'
     > &
       Schema.Attribute.Private;
-    paper_title: Schema.Attribute.String;
-    patent: Schema.Attribute.String & Schema.Attribute.DefaultTo<'none'>;
+    page_end: Schema.Attribute.Integer;
+    page_start: Schema.Attribute.Integer;
+    publication_type: Schema.Attribute.Enumeration<
+      ['technical', 'review', 'granted patent', 'filed patent']
+    > &
+      Schema.Attribute.Required;
     publishedAt: Schema.Attribute.DateTime;
+    title: Schema.Attribute.String & Schema.Attribute.Required;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    vol: Schema.Attribute.Integer;
   };
 }
 

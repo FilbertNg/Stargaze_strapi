@@ -5,15 +5,21 @@
   },
   "options": {},
   "attributes": {
-    "project_title": {
-      "type": "string"
+    "paper_citation": {
+      "type": "component",
+      "component": "list-of-details.only-text",
+      "repeatable": true
     },
-    "citation": {
-      "type": "text"
+    "patent_citation": {
+      "type": "component",
+      "component": "list-of-details.only-text",
+      "repeatable": true
     },
-    "patent": {
-      "type": "string",
-      "default": "none"
+    "master": {
+      "type": "integer"
+    },
+    "phd": {
+      "type": "integer"
     }
   },
   "config": {}

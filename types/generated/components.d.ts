@@ -6,6 +6,7 @@ export interface ListOfDetailsCollaborator extends Struct.ComponentSchema {
     displayName: 'collaborator';
   };
   attributes: {
+    logo: Schema.Attribute.Media<'images'>;
     name: Schema.Attribute.String;
     type: Schema.Attribute.Enumeration<
       ['researcher', 'company', 'institution', 'agency']
@@ -13,14 +14,23 @@ export interface ListOfDetailsCollaborator extends Struct.ComponentSchema {
   };
 }
 
-export interface ListOfDetailsFunding extends Struct.ComponentSchema {
-  collectionName: 'components_list_of_details_fundings';
+export interface ListOfDetailsContent extends Struct.ComponentSchema {
+  collectionName: 'components_list_of_details_contents';
   info: {
-    displayName: 'funding';
+    displayName: 'media';
   };
   attributes: {
-    source: Schema.Attribute.String;
-    total_funding: Schema.Attribute.BigInteger;
+    Media: Schema.Attribute.Media<'images' | 'files' | 'videos' | 'audios'>;
+  };
+}
+
+export interface ListOfDetailsOnlyText extends Struct.ComponentSchema {
+  collectionName: 'components_list_of_details_only_texts';
+  info: {
+    displayName: 'long-text';
+  };
+  attributes: {
+    text: Schema.Attribute.Text;
   };
 }
 
@@ -30,8 +40,7 @@ export interface ListOfDetailsPerson extends Struct.ComponentSchema {
     displayName: 'person';
   };
   attributes: {
-    person_name: Schema.Attribute.String;
-    person_title: Schema.Attribute.String;
+    person: Schema.Attribute.String;
   };
 }
 
@@ -41,9 +50,16 @@ export interface ListOfDetailsProjectOutput extends Struct.ComponentSchema {
     displayName: 'project_output';
   };
   attributes: {
-    citation: Schema.Attribute.Text;
-    patent: Schema.Attribute.String & Schema.Attribute.DefaultTo<'none'>;
-    project_title: Schema.Attribute.String;
+    master: Schema.Attribute.Integer;
+    paper_citation: Schema.Attribute.Component<
+      'list-of-details.only-text',
+      true
+    >;
+    patent_citation: Schema.Attribute.Component<
+      'list-of-details.only-text',
+      true
+    >;
+    phd: Schema.Attribute.Integer;
   };
 }
 
@@ -53,11 +69,7 @@ export interface ListOfDetailsText extends Struct.ComponentSchema {
     displayName: 'text';
   };
   attributes: {
-    text: Schema.Attribute.Text & Schema.Attribute.Required;
-    text_type: Schema.Attribute.Enumeration<
-      ['Heading', 'Subheading', 'Paragraph']
-    > &
-      Schema.Attribute.Required;
+    Text: Schema.Attribute.RichText;
   };
 }
 
@@ -65,7 +77,8 @@ declare module '@strapi/strapi' {
   export module Public {
     export interface ComponentSchemas {
       'list-of-details.collaborator': ListOfDetailsCollaborator;
-      'list-of-details.funding': ListOfDetailsFunding;
+      'list-of-details.content': ListOfDetailsContent;
+      'list-of-details.only-text': ListOfDetailsOnlyText;
       'list-of-details.person': ListOfDetailsPerson;
       'list-of-details.project-output': ListOfDetailsProjectOutput;
       'list-of-details.text': ListOfDetailsText;

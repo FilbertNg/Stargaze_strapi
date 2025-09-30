@@ -5,10 +5,7 @@
   },
   "options": {},
   "attributes": {
-    "person_name": {
-      "type": "string"
-    },
-    "person_title": {
+    "person": {
       "type": "string"
     }
   },

@@ -16,6 +16,13 @@
         "institution",
         "agency"
       ]
+    },
+    "logo": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images"
+      ]
     }
   },
   "config": {}

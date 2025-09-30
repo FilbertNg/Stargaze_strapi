@@ -18,18 +18,16 @@
     "date": {
       "type": "date"
     },
-    "media": {
+    "cover_picture": {
       "type": "media",
       "multiple": false,
+      "required": true,
       "allowedTypes": [
-        "images",
-        "files"
+        "images"
       ]
     },
-    "content": {
-      "type": "component",
-      "component": "list-of-details.text",
-      "repeatable": true
+    "news_content": {
+      "type": "richtext"
     }
   }
 }

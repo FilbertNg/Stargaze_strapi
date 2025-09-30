@@ -5,18 +5,8 @@
   },
   "options": {},
   "attributes": {
-    "text_type": {
-      "type": "enumeration",
-      "required": true,
-      "enum": [
-        "Heading",
-        "Subheading",
-        "Paragraph"
-      ]
-    },
-    "text": {
-      "type": "text",
-      "required": true
+    "Text": {
+      "type": "richtext"
     }
   },
   "config": {}

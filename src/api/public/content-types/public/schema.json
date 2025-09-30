@@ -11,21 +11,40 @@
   },
   "pluginOptions": {},
   "attributes": {
-    "paper_title": {
-      "type": "string"
+    "title": {
+      "type": "string",
+      "required": true
     },
     "journal_name": {
-      "type": "string"
+      "type": "string",
+      "required": true
+    },
+    "vol": {
+      "type": "integer"
+    },
+    "issue": {
+      "type": "integer"
+    },
+    "page_start": {
+      "type": "integer"
+    },
+    "page_end": {
+      "type": "integer"
     },
     "author": {
       "type": "component",
       "component": "list-of-details.person",
-      "repeatable": true
+      "repeatable": true,
+      "required": true
+    },
+    "citation": {
+      "type": "text"
     },
     "impact_factor": {
-      "type": "decimal"
+      "type": "decimal",
+      "required": false
     },
-    "classification": {
+    "indexing_classification": {
       "type": "enumeration",
       "enum": [
         "WWoS Q1",
@@ -37,22 +56,25 @@
         "Non-indexed"
       ]
     },
-    "patent": {
-      "type": "string",
-      "default": "none"
+    "publication_type": {
+      "type": "enumeration",
+      "required": true,
+      "enum": [
+        "technical",
+        "review",
+        "granted patent",
+        "filed patent"
+      ]
     },
-    "doi": {
-      "type": "string"
+    "doi_link": {
+      "type": "string",
+      "required": true
     },
     "executive_summary": {
-      "type": "component",
-      "component": "list-of-details.text",
-      "repeatable": true
+      "type": "richtext"
     },
     "funding_section": {
-      "type": "component",
-      "component": "list-of-details.funding",
-      "repeatable": true
+      "type": "richtext"
     }
   }
 }

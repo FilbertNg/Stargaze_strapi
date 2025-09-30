@@ -8,26 +8,28 @@ export default factories.createCoreService('api::grants-n-project.grants-n-proje
     const grants = await strapi.db
       .query('api::grants-n-project.grants-n-project')
       .findMany({
-        select: ['total_funding', 'publishedAt'],
-        populate: { collaborator: { select: ['type'] } }
+        select: ['total_funding', 'on_time', 'type_of_grants'],
+        populate: { project_output: {
+          fields: ['master', 'phd'],
+          populate: true
+        } }
       });
 
     const totalFunding = grants.reduce((sum, g: any) => sum + Number(g.total_funding || 0), 0);
+    const totalGrants = grants.length;
 
-    const totalNationalGrants = grants.reduce((sum, g:any) => sum + Number(g.collaborator.filter((c: any) => c.type === "institution").length), 0);
-    const totalIndustryGrants = grants.reduce((sum, g:any) => sum + Number(g.collaborator.filter((c: any) => c.type === "company").length), 0);
-    const totalInternalGrants = grants.reduce((sum, g:any) => sum + Number(g.collaborator.filter((c: any) => c.type === "researcher").length), 0);
+    const totalNationalGrants = grants.reduce((sum, g:any) => sum + Number(g.type_of_grants === "national grants" || 0), 0);
+    const totalIndustryGrants = grants.reduce((sum, g:any) => sum + Number(g.type_of_grants === "industry grants" || 0), 0);
+    const totalInternalGrants = grants.reduce((sum, g:any) => sum + Number(g.type_of_grants === "internal grants" || 0), 0);
 
-    const currentMonth = new Date().getMonth();
-    const currentYear = new Date().getFullYear();
+    const deliveryRate = grants.reduce((sum, g:any) => sum + Number(g.on_time === true || 0), 0)/totalGrants;
 
-    const grantsThisMonth = grants.filter((g: any) => {
-      if (!g.publishedAt) return false;
-      const d = new Date(g.publishedAt);
-      return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
-    }).length;
+    const totalPaper = grants.reduce((sum, g:any) => sum + Number(g.project_output?.paper_citation?.length || 0), 0);
+    const totalPatent = grants.reduce((sum, g:any) => sum + Number(g.project_output?.patent_citation?.length || 0), 0);
+    const totalMaster = grants.reduce((sum, g:any) => sum + Number(g.project_output?.master || 0), 0);
+    const totalPhd = grants.reduce((sum, g:any) => sum + Number(g.project_output?.phd || 0), 0);
 
-    const stats = { totalFunding, grantsThisMonth, totalGrants: grants.length, totalNationalGrants, totalIndustryGrants, totalInternalGrants };
+    const stats = { totalFunding, totalGrants, totalNationalGrants, totalIndustryGrants, totalInternalGrants, deliveryRate, totalPaper, totalPatent, totalMaster, totalPhd };
     
     // Store stats in a single record in a "statistic" collection or even in strapi store    
     const existing = await strapi.db

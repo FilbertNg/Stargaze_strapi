@@ -1,0 +1,13 @@
+{
+  "collectionName": "components_list_of_details_only_texts",
+  "info": {
+    "displayName": "long-text"
+  },
+  "options": {},
+  "attributes": {
+    "text": {
+      "type": "text"
+    }
+  },
+  "config": {}
+}

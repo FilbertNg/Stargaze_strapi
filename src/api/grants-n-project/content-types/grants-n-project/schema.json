@@ -11,9 +11,30 @@
   },
   "pluginOptions": {},
   "attributes": {
+    "project_title": {
+      "type": "string",
+      "required": true
+    },
     "pi_name": {
       "type": "string",
       "required": true
+    },
+    "grant_scheme_name": {
+      "type": "string",
+      "required": true
+    },
+    "grant_code": {
+      "type": "string",
+      "required": true
+    },
+    "type_of_grants": {
+      "type": "enumeration",
+      "required": true,
+      "enum": [
+        "national grants",
+        "industry grants",
+        "internal grants"
+      ]
     },
     "total_funding": {
       "type": "biginteger",
@@ -21,24 +42,27 @@
       "default": "0",
       "min": "0"
     },
-    "scheme_name": {
-      "type": "string",
-      "required": true
-    },
-    "project_title": {
-      "type": "string",
-      "required": true
-    },
     "start_date": {
-      "type": "date"
+      "type": "date",
+      "required": true
     },
     "end_date": {
-      "type": "date"
+      "type": "date",
+      "required": true
+    },
+    "on_time": {
+      "type": "boolean",
+      "required": true,
+      "default": false
+    },
+    "citation": {
+      "type": "text"
     },
     "team_members": {
       "type": "component",
       "component": "list-of-details.person",
-      "repeatable": true
+      "repeatable": true,
+      "required": true
     },
     "collaborator": {
       "type": "component",
@@ -48,7 +72,7 @@
     "project_output": {
       "type": "component",
       "component": "list-of-details.project-output",
-      "repeatable": true
+      "repeatable": false
     },
     "graphical_abstract": {
       "type": "media",
