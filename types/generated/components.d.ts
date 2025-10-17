@@ -7,10 +7,11 @@ export interface ListOfDetailsCollaborator extends Struct.ComponentSchema {
   };
   attributes: {
     logo: Schema.Attribute.Media<'images'>;
-    name: Schema.Attribute.String;
+    name: Schema.Attribute.String & Schema.Attribute.Required;
     type: Schema.Attribute.Enumeration<
       ['researcher', 'company', 'institution', 'agency']
-    >;
+    > &
+      Schema.Attribute.Required;
   };
 }
 
@@ -40,7 +41,7 @@ export interface ListOfDetailsPerson extends Struct.ComponentSchema {
     displayName: 'person';
   };
   attributes: {
-    person: Schema.Attribute.String;
+    person: Schema.Attribute.String & Schema.Attribute.Required;
   };
 }
 
@@ -50,7 +51,7 @@ export interface ListOfDetailsProjectOutput extends Struct.ComponentSchema {
     displayName: 'project_output';
   };
   attributes: {
-    master: Schema.Attribute.Integer;
+    master: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
     paper_citation: Schema.Attribute.Component<
       'list-of-details.only-text',
       true
@@ -59,7 +60,7 @@ export interface ListOfDetailsProjectOutput extends Struct.ComponentSchema {
       'list-of-details.only-text',
       true
     >;
-    phd: Schema.Attribute.Integer;
+    phd: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
   };
 }
 

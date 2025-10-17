@@ -15,8 +15,13 @@
       "type": "string",
       "required": true
     },
+    "short_description": {
+      "type": "text",
+      "required": true
+    },
     "date": {
-      "type": "date"
+      "type": "date",
+      "required": true
     },
     "cover_picture": {
       "type": "media",
@@ -27,7 +32,8 @@
       ]
     },
     "news_content": {
-      "type": "richtext"
+      "type": "richtext",
+      "required": true
     }
   }
 }

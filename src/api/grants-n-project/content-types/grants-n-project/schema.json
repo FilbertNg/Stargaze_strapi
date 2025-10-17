@@ -56,7 +56,8 @@
       "default": false
     },
     "citation": {
-      "type": "text"
+      "type": "text",
+      "required": true
     },
     "team_members": {
       "type": "component",
@@ -67,12 +68,14 @@
     "collaborator": {
       "type": "component",
       "component": "list-of-details.collaborator",
-      "repeatable": true
+      "repeatable": true,
+      "required": true
     },
     "project_output": {
       "type": "component",
       "component": "list-of-details.project-output",
-      "repeatable": false
+      "repeatable": false,
+      "required": true
     },
     "graphical_abstract": {
       "type": "media",

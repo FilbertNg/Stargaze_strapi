@@ -10,11 +10,16 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
       if (mode === "homepage") {
         // Case 1: homepage → top 3
         ctx.query = {
-          populate: ["author"],
-          fields: ["title", "journal_name", "vol", "issue", "page_start", "page_end", "impact_factor", "indexing_classification", "publication_type", "doi_link","publishedAt"],
+          populate: {
+            author: true,
+            cover_picture: {
+              fields: ["url", "alternativeText", "caption", "width", "height"],
+            },
+          },
+          fields: ["title", "journal_name", "impact_factor", "indexing_classification",  "doi_link"],
           sort: "impact_factor:desc",
           "pagination[page]": "1",
-          "pagination[pageSize]": "3",
+          "pagination[pageSize]": "5",
         };
       } else if (mode === "list") {
         // Case 2: paginated list, sorted by impact_factor
@@ -22,7 +27,12 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
         const currentPage = page ? String(page) : "1";
 
         ctx.query = {
-          populate: ["author"],
+          populate: {
+            author: true,
+            cover_picture: {
+              fields: ["url", "alternativeText", "caption", "width", "height"],
+            },
+          },
           fields: ["title", "journal_name", "vol", "issue", "page_start", "page_end", "impact_factor", "indexing_classification", "publication_type", "doi_link","publishedAt"],
           sort: "impact_factor:desc",
           "pagination[page]": currentPage,
@@ -31,7 +41,12 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
       } else if (mode === "detail" && id) {
         // Case 3: single grant with populate
         ctx.query = {
-          "populate": "*",
+          populate: {
+            author: true,
+            cover_picture: {
+              fields: ["url", "alternativeText", "caption", "width", "height"],
+            },
+          },
           "filters[id][$eq]": String(id),
           "pagination[pageSize]": "1"
         };
@@ -64,7 +79,12 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
         }
 
         ctx.query = {
-          populate: ["author"],
+          populate: {
+            author: true,
+            cover_picture: {
+              fields: ["url", "alternativeText", "caption", "width", "height"],
+            },
+          },
           fields: [
             "title", "journal_name", "vol", "issue", "page_start", "page_end",
             "impact_factor", "indexing_classification", "publication_type",

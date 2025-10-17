@@ -19,6 +19,14 @@
       "type": "string",
       "required": true
     },
+    "cover_picture": {
+      "type": "media",
+      "multiple": false,
+      "required": true,
+      "allowedTypes": [
+        "images"
+      ]
+    },
     "vol": {
       "type": "integer"
     },
@@ -42,10 +50,30 @@
     },
     "impact_factor": {
       "type": "decimal",
+      "conditions": {
+        "visible": {
+          "!=": [
+            {
+              "var": "publication_type"
+            },
+            "granted patent"
+          ]
+        }
+      },
       "required": false
     },
     "indexing_classification": {
       "type": "enumeration",
+      "conditions": {
+        "visible": {
+          "!=": [
+            {
+              "var": "publication_type"
+            },
+            "granted patent"
+          ]
+        }
+      },
       "enum": [
         "WWoS Q1",
         "WWoS Q2",

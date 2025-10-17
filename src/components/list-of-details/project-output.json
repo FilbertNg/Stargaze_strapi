@@ -16,10 +16,12 @@
       "repeatable": true
     },
     "master": {
-      "type": "integer"
+      "type": "integer",
+      "default": 0
     },
     "phd": {
-      "type": "integer"
+      "type": "integer",
+      "default": 0
     }
   },
   "config": {}

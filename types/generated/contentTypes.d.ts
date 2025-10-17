@@ -385,11 +385,12 @@ export interface ApiGrantsNProjectGrantsNProject
     draftAndPublish: false;
   };
   attributes: {
-    citation: Schema.Attribute.Text;
+    citation: Schema.Attribute.Text & Schema.Attribute.Required;
     collaborator: Schema.Attribute.Component<
       'list-of-details.collaborator',
       true
-    >;
+    > &
+      Schema.Attribute.Required;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -412,7 +413,8 @@ export interface ApiGrantsNProjectGrantsNProject
     project_output: Schema.Attribute.Component<
       'list-of-details.project-output',
       false
-    >;
+    > &
+      Schema.Attribute.Required;
     project_title: Schema.Attribute.String & Schema.Attribute.Required;
     publishedAt: Schema.Attribute.DateTime;
     start_date: Schema.Attribute.Date & Schema.Attribute.Required;
@@ -452,12 +454,13 @@ export interface ApiNewNew extends Struct.CollectionTypeSchema {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    date: Schema.Attribute.Date;
+    date: Schema.Attribute.Date & Schema.Attribute.Required;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::new.new'> &
       Schema.Attribute.Private;
-    news_content: Schema.Attribute.RichText;
+    news_content: Schema.Attribute.RichText & Schema.Attribute.Required;
     publishedAt: Schema.Attribute.DateTime;
+    short_description: Schema.Attribute.Text & Schema.Attribute.Required;
     title: Schema.Attribute.String & Schema.Attribute.Required;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -479,6 +482,7 @@ export interface ApiPublicPublic extends Struct.CollectionTypeSchema {
     author: Schema.Attribute.Component<'list-of-details.person', true> &
       Schema.Attribute.Required;
     citation: Schema.Attribute.Text;
+    cover_picture: Schema.Attribute.Media<'images'> & Schema.Attribute.Required;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;

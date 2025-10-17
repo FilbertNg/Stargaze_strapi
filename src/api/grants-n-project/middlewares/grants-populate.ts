@@ -6,12 +6,12 @@ const fullPopulate = {
       fields: ["name", "type"],
       populate: {
         logo: {
-          fields: ["name", "alternativeText", "url"],
+          fields: ["url", "alternativeText", "caption", "width", "height"],
         },
       },
     },
     graphical_abstract: {
-      fields: ["name", "alternativeText", "url"],
+      fields: ["url", "alternativeText", "caption", "width", "height"],
     },
     team_members: true, // gets all fields
     project_output: {
