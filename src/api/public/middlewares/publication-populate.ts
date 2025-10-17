@@ -106,5 +106,9 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
     }
 
     await next();
+    if (ctx.body && ctx.body.data !== undefined) {
+      ctx.body = ctx.body.data;
+      ctx.status = 200;
+    }
   };
 };

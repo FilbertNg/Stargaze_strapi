@@ -4,4 +4,10 @@
 
 import { factories } from '@strapi/strapi';
 
-export default factories.createCoreRouter('api::statistic.statistic');
+export default factories.createCoreRouter('api::statistic.statistic', {
+    config: {
+        find: {
+            middlewares: ['api::statistic.stats-populate']
+        }
+    }
+});

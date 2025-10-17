@@ -28,25 +28,35 @@ export default factories.createCoreService('api::public.public', ({ strapi }) =>
             }, 0);
 
 
+        // initialize the classification number
+        const fixedClasses = [
+            "WWoS Q1",
+            "WWoS Q2",
+            "WWoS Q3",
+            "WWoS Q4",
+            "Conference Paper",
+            "Scopus-indexed",
+            "Non-indexed"
+        ];
+        const classificationCounts = fixedClasses.reduce((acc, cls) => {
+        acc[cls] = 0;
+        return acc;
+        }, {} as Record<string, number>);
+
         // Calculate indexing classification number
-        const classificationCounts = publications.reduce((acc: Record<string, number>, p: any) => {
-            const cls = p.indexing_classification || "patent"; // fallback if missing
-            acc[cls] = (acc[cls] || 0) + 1;
-            return acc;
-            }, {});
+        for (const p of publications) {
+        const cls = p.indexing_classification;
+        if (fixedClasses.includes(cls)) {
+            classificationCounts[cls]++;
+        }
+        }
+
     
         // append patent into categories
         classificationCounts["Patent Granted"] = totalPatentsGranted;
         classificationCounts["Patent Filed"] = totalPatentsFiled;
-
-        // percentages JSON
-        const classificationPercentages: Record<string, number> = {};
-        for (const [key, count] of Object.entries(classificationCounts)) {
-            const numCount = count as number; // fix TS squiggle
-            classificationPercentages[key] = Number((numCount / totalPapers).toFixed(4));
-          }
             
-        const stats = { totalPapers, classificationCounts, classificationPercentages};
+        const stats = { totalPapers, classificationCounts};
         
         // Store stats in a single record in a "statistic" collection or even in strapi store    
         const existing = await strapi.db

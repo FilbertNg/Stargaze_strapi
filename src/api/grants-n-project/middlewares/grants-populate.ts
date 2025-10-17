@@ -31,7 +31,7 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
       if (mode === "homepage") {
         // Case 1: homepage → top 3, no populate
         ctx.query = {
-          fields: ["project_title", "pi_name", "total_funding","type_of_grants", "grant_scheme_name", "grant_scheme_code", "start_date", "end_date", "citation"],
+          fields: ["project_title", "pi_name", "total_funding","type_of_grants", "grant_scheme_name", "grant_code", "start_date", "end_date", "citation"],
           sort: "total_funding:desc",
           "pagination[page]": "1",
           "pagination[pageSize]": "3",
@@ -42,7 +42,7 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
         const currentPage = page ? String(page) : "1";
 
         ctx.query = {
-          fields: ["project_title", "pi_name", "total_funding","type_of_grants", "grant_scheme_name", "grant_scheme_code", "start_date", "end_date", "citation"],
+          fields: ["project_title", "pi_name", "total_funding","type_of_grants", "grant_scheme_name", "grant_code", "start_date", "end_date", "citation"],
           sort: "total_funding:desc",
           "pagination[page]": currentPage,
           "pagination[pageSize]": pageSize,
@@ -77,7 +77,7 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
 
         ctx.query = {
           fields: [
-            "project_title", "pi_name", "total_funding","type_of_grants", "grant_scheme_name", "grant_scheme_code", "start_date", "end_date", "citation"
+            "project_title", "pi_name", "total_funding","type_of_grants", "grant_scheme_name", "grant_code", "start_date", "end_date", "citation"
           ],
           filters,
           sort: "total_funding:desc",
@@ -95,5 +95,9 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
     }
 
     await next();
+    if (ctx.body && ctx.body.data !== undefined) {
+      ctx.body = ctx.body.data;
+      ctx.status = 200;
+    }
   };
 };
