@@ -25,7 +25,7 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
   return async (ctx, next) => {
     strapi.log.info("In grants-populate middleware.");
 
-    const { mode, limit, page, id , name, year} = ctx.query;
+    const { mode, limit, page, id , pi_name, title, year} = ctx.query;
 
     if (ctx.request.url.startsWith("/api/grants-n-projects")) {
       if (mode === "homepage") {
@@ -60,11 +60,16 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
         const currentPage = page ? String(page) : "1";
         const pageSize = limit ? String(limit) : "10";
 
-        if (name) {
+        if (pi_name) {
           filters.$or = [
-            { project_title: { $containsi: name } },
-            { pi_name: { $containsi: name } },
-            { grant_scheme_name: { $containsi: name } }
+            { pi_name: { $containsi: pi_name } },
+          ];
+        }
+
+        if (title) {
+          filters.$or = [
+            { project_title: { $containsi: title } },
+            { grant_scheme_name: { $containsi: title } }
           ];
         }
 

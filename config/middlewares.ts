@@ -2,7 +2,17 @@ export default [
   'strapi::logger',
   'strapi::errors',
   'strapi::security',
-  'strapi::cors',
+  {
+    name: 'strapi::cors',
+    config: {
+      origin: [
+        'https://stargaze-home.netlify.app'
+      ],
+      headers: ['Content-Type', 'Authorization', 'Origin', 'Accept'],
+      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'],
+      credentials: true, // set true only if you need cookies/auth sent
+    },
+  },
   'strapi::poweredBy',
   'strapi::query',
   'strapi::body',
