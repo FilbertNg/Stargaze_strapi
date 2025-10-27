@@ -21,6 +21,10 @@ export default factories.createCoreService('api::grants-n-project.grants-n-proje
     const totalNationalGrants = grants.reduce((sum, g:any) => sum + Number(g.type_of_grants === "national grants" || 0), 0);
     const totalIndustryGrants = grants.reduce((sum, g:any) => sum + Number(g.type_of_grants === "industry grants" || 0), 0);
     const totalInternalGrants = grants.reduce((sum, g:any) => sum + Number(g.type_of_grants === "internal grants" || 0), 0);
+    
+    const nationalPercentage = totalGrants ? (totalNationalGrants / totalGrants) * 100 : 0;
+    const industryPercentage = totalGrants ? (totalIndustryGrants / totalGrants) * 100 : 0;
+    const internalPercentage = totalGrants ? (totalInternalGrants / totalGrants) * 100 : 0;
 
     const deliveryRate = grants.reduce((sum, g:any) => sum + Number(g.on_time === true || 0), 0)/totalGrants;
 
@@ -29,7 +33,7 @@ export default factories.createCoreService('api::grants-n-project.grants-n-proje
     const totalMaster = grants.reduce((sum, g:any) => sum + Number(g.project_output?.master || 0), 0);
     const totalPhd = grants.reduce((sum, g:any) => sum + Number(g.project_output?.phd || 0), 0);
 
-    const stats = { totalFunding, totalGrants, totalNationalGrants, totalIndustryGrants, totalInternalGrants, deliveryRate, totalPaper, totalPatent, totalMaster, totalPhd };
+    const stats = { totalFunding, totalGrants, totalNationalGrants, totalIndustryGrants, totalInternalGrants, nationalPercentage, industryPercentage, internalPercentage, deliveryRate, totalPaper, totalPatent, totalMaster, totalPhd };
     
     // Store stats in a single record in a "statistic" collection or even in strapi store    
     const existing = await strapi.db

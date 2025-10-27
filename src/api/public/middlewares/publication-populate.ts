@@ -11,12 +11,11 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
         // Case 1: homepage → top 3
         ctx.query = {
           populate: {
-            author: true,
             cover_picture: {
               fields: ["url", "alternativeText", "caption", "width", "height"],
             },
           },
-          fields: ["title", "journal_name", "impact_factor", "indexing_classification",  "doi_link"],
+          fields: ["title", "journal_name", "impact_factor", "indexing_classification"],
           sort: "impact_factor:desc",
           "pagination[page]": "1",
           "pagination[pageSize]": "5",
@@ -28,12 +27,11 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
 
         ctx.query = {
           populate: {
-            author: true,
             cover_picture: {
               fields: ["url", "alternativeText", "caption", "width", "height"],
             },
           },
-          fields: ["title", "journal_name", "vol", "issue", "page_start", "page_end", "impact_factor", "indexing_classification", "publication_type", "doi_link","publishedAt"],
+          fields: ["title", "journal_name", "impact_factor", "indexing_classification", "publication_type","publishedAt"],
           sort: "impact_factor:desc",
           "pagination[page]": currentPage,
           "pagination[pageSize]": pageSize,
@@ -80,15 +78,12 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
 
         ctx.query = {
           populate: {
-            author: true,
             cover_picture: {
               fields: ["url", "alternativeText", "caption", "width", "height"],
             },
           },
           fields: [
-            "title", "journal_name", "vol", "issue", "page_start", "page_end",
-            "impact_factor", "indexing_classification", "publication_type",
-            "doi_link", "publishedAt"
+            "title", "journal_name", "impact_factor", "indexing_classification", "publication_type", "publishedAt"
           ],
           filters,
           sort: "impact_factor:desc",
