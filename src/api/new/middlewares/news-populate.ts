@@ -15,7 +15,7 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
               fields: ["url", "alternativeText", "caption", "width", "height"],
             },
           },
-          fields: ["title", "short_description", "date"],
+          fields: ["title", "date"],
           sort: "date:desc",
           "pagination[page]": "1",
           "pagination[pageSize]": "3",
@@ -31,7 +31,7 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
               fields: ["url", "alternativeText", "caption", "width", "height"],
             },
           },
-          fields: ["title", "short_description", "date"],
+          fields: ["title", "date"],
           sort: "date:desc",
           "pagination[page]": currentPage,
           "pagination[pageSize]": pageSize,
@@ -44,7 +44,7 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
               fields: ["url", "alternativeText", "caption", "width", "height"],
             },
           },
-          fields: ["title", "short_description", "date", "news_content"],
+          fields: ["title", "date", "news_content"],
           "filters[id][$eq]": String(id),
           "pagination[pageSize]": "1"
         };
@@ -74,7 +74,7 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
             },
           },
           fields: [
-            "title", "short_description", "date"
+            "title", "date"
           ],
           filters,
           sort: "date:desc",

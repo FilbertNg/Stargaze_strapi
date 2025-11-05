@@ -15,10 +15,6 @@
       "type": "string",
       "required": true
     },
-    "short_description": {
-      "type": "text",
-      "required": true
-    },
     "date": {
       "type": "date",
       "required": true

@@ -74,10 +74,18 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
         }
 
         if (year) {
-          filters.start_date = {
+          filters.$or = [
+            { start_date: {
             $gte: `${year}-01-01`,
             $lte: `${year}-12-31`
-          };
+              }
+            }, 
+          { end_date: {
+            $gte: `${year}-01-01`,
+            $lte: `${year}-12-31`
+              } 
+            }
+          ]
         }
 
         ctx.query = {
