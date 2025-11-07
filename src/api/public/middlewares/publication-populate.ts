@@ -1,14 +1,16 @@
+// ./src/middlewares/publication-populate.ts (or wherever you have it)
 import type { Core } from '@strapi/strapi';
 
 export default (config, { strapi }: { strapi: Core.Strapi }) => {
   return async (ctx, next) => {
     strapi.log.info("In publication-populate middleware.");
 
-    const { mode, limit, page, id , title, classification, type, year } = ctx.query;
+    // **MODIFICATION: Capture mode before ctx.query is modified**
+    const { mode, id } = ctx.query;
 
     if (ctx.request.url.startsWith("/api/publics")) {
       if (mode === "homepage") {
-        // Case 1: homepage → top 3
+        // Case 1: homepage → top 5 
         ctx.query = {
           populate: {
             author: true,
@@ -23,8 +25,8 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
         };
       } else if (mode === "list") {
         // Case 2: paginated list, sorted by impact_factor
-        const pageSize = limit ? String(limit) : "10";
-        const currentPage = page ? String(page) : "1";
+        const pageSize = ctx.query.limit ? String(ctx.query.limit) : "10";
+        const currentPage = ctx.query.page ? String(ctx.query.page) : "1";
 
         ctx.query = {
           populate: {
@@ -39,7 +41,9 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
           "pagination[pageSize]": pageSize,
         };
       } else if (mode === "detail" && id) {
-        // Case 3: single grant with populate
+        // Case 3: single item by ID
+        // Note: This will still return { data: [item], meta: {...} }
+        // We will flatten this to just `item` at the end.
         ctx.query = {
           populate: {
             author: true,
@@ -53,13 +57,15 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
       } else if (mode === "searching") {
         // Case 4: searching a specific publication
         const  filters: Record<string, any> = {};
-        const currentPage = page ? String(page) : "1";
-        const pageSize = limit ? String(limit) : "10";
+        const currentPage = ctx.query.page ? String(ctx.query.page) : "1";
+        const pageSize = ctx.query.limit ? String(ctx.query.limit) : "10";
+
+        const { title, classification, type, year } = ctx.query;
 
         if (title) {
           filters.$or = [
-            { title: { $containsi: title } },
-            { journal_name: { $containsi: title } }
+            { title: { $containsi: title as string } },
+            { journal_name: { $containsi: title as string } }
           ];
         }
 
@@ -99,16 +105,33 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
         // 🚫 Block everything else
         ctx.status = 400;
         ctx.body = {
-          error: "Invalid query. Use ?mode=homepage, ?mode=list, or ?mode=detail&id=...",
+          error: "Invalid query. Use ?mode=homepage, ?mode=list, ?mode=searching, or ?mode=detail&id=...",
         };
         return; // stop here, don't call next()
       }
     }
 
     await next();
+
+    // **MODIFIED RESPONSE FORMATTING**
+    // This now checks the 'mode' we saved earlier to decide how to format the response.
     if (ctx.body && ctx.body.data !== undefined) {
-      ctx.body = ctx.body.data;
-      ctx.status = 200;
+      if (mode === 'homepage') {
+        // Homepage: Just send the array of data
+        strapi.log.info('Middleware: Formatting for homepage (data array).');
+        ctx.body = ctx.body.data;
+      } else if (mode === 'detail' && id) {
+        // Detail: Send the *first item* from the data array, or null
+        strapi.log.info('Middleware: Formatting for detail (single item).');
+        ctx.body = ctx.body.data.length > 0 ? ctx.body.data[0] : null;
+      } else if (mode === 'list' || mode === 'searching') {
+        // List or Searching: Send the *full payload* { data: [...], meta: {...} }
+        strapi.log.info('Middleware: Formatting for list/search (full payload).');
+        // DO NOTHING - pass the full body with data and meta
+      } else {
+        // Fallback for unhandled modes
+        strapi.log.warn(`Middleware: Unhandled mode '${mode}', passing full payload.`);
+      }
     }
   };
 };

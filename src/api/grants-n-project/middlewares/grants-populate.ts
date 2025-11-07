@@ -109,8 +109,21 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
 
     await next();
     if (ctx.body && ctx.body.data !== undefined) {
-      ctx.body = ctx.body.data;
-      ctx.status = 200;
+      if (mode === 'homepage') {
+        // Homepage: Just send the array of data
+        strapi.log.info('Middleware: Formatting for homepage (data array).');
+        ctx.body = ctx.body.data;
+      } else if (mode === 'detail' && id) {
+        // Detail: Send the *first item* from the data array, or null
+        strapi.log.info('Middleware: Formatting for detail (single item).');
+        ctx.body = ctx.body.data.length > 0 ? ctx.body.data[0] : null;
+      } else if (mode === 'list' || mode === 'searching') {
+        // List or Searching: Send the *full payload* { data: [...], meta: {...} }
+        strapi.log.info('Middleware: Formatting for list/search (full payload).');
+        // DO NOTHING - pass the full body with data and meta
+      } else {
+        strapi.log.warn(`Middleware: Unhandled mode '${mode}', passing full payload.`);
+      }
     }
   };
 };
