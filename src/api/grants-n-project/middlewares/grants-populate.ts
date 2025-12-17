@@ -25,13 +25,13 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
   return async (ctx, next) => {
     strapi.log.info("In grants-populate middleware.");
 
-    const { mode, limit, page, id , pi_name, title, year} = ctx.query;
+    const { mode, limit, page, id, pi_name, title, year } = ctx.query;
 
     if (ctx.request.url.startsWith("/api/grants-n-projects")) {
       if (mode === "homepage") {
         // Case 1: homepage → top 3, no populate
         ctx.query = {
-          fields: ["project_title", "pi_name", "total_funding","type_of_grants", "grant_scheme_name", "grant_code", "start_date", "end_date", "citation"],
+          fields: ["project_title", "pi_name", "total_funding", "type_of_grants", "grant_scheme_name", "grant_code", "start_date", "end_date", "citation"],
           sort: "total_funding:desc",
           "pagination[page]": "1",
           "pagination[pageSize]": "3",
@@ -42,7 +42,7 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
         const currentPage = page ? String(page) : "1";
 
         ctx.query = {
-          fields: ["project_title", "pi_name", "total_funding","type_of_grants", "grant_scheme_name", "grant_code", "start_date", "end_date", "citation"],
+          fields: ["project_title", "pi_name", "total_funding", "type_of_grants", "grant_scheme_name", "grant_code", "start_date", "end_date", "citation"],
           sort: "total_funding:desc",
           "pagination[page]": currentPage,
           "pagination[pageSize]": pageSize,
@@ -56,43 +56,55 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
         };
       } else if (mode === "searching") {
         // Case 4: searching a specific publication
-        const  filters: Record<string, any> = {};
+        const filters: Record<string, any> = {};
         const currentPage = page ? String(page) : "1";
         const pageSize = limit ? String(limit) : "10";
 
+        const filterConditions = [];
+
         if (pi_name) {
-          filters.$or = [
-            { pi_name: { $containsi: pi_name } },
-          ];
+          filterConditions.push({
+            $or: [
+              { pi_name: { $containsi: pi_name } },
+            ],
+          });
         }
 
         if (title) {
-          filters.$or = [
-            { project_title: { $containsi: title } },
-            { grant_scheme_name: { $containsi: title } }
-          ];
+          filterConditions.push({
+            $or: [
+              { project_title: { $containsi: title } },
+              { grant_scheme_name: { $containsi: title } }
+            ]
+          });
         }
 
         if (year) {
-          filters.$or = [
-            { start_date: {
-            $gte: `${year}-01-01`,
-            $lte: `${year}-12-31`
+          filterConditions.push({
+            $or: [
+              {
+                start_date: {
+                  $gte: `${year}-01-01`,
+                  $lte: `${year}-12-31`
+                }
+              },
+              {
+                end_date: {
+                  $gte: `${year}-01-01`,
+                  $lte: `${year}-12-31`
+                }
               }
-            }, 
-          { end_date: {
-            $gte: `${year}-01-01`,
-            $lte: `${year}-12-31`
-              } 
-            }
-          ]
+            ]
+          });
         }
 
         ctx.query = {
           fields: [
-            "project_title", "pi_name", "total_funding","type_of_grants", "grant_scheme_name", "grant_code", "start_date", "end_date", "citation"
+            "project_title", "pi_name", "total_funding", "type_of_grants", "grant_scheme_name", "grant_code", "start_date", "end_date", "citation"
           ],
-          filters,
+          filters: {
+            $and: filterConditions
+          },
           sort: "total_funding:desc",
           "pagination[pageSize]": pageSize,
           "pagination[page]": currentPage

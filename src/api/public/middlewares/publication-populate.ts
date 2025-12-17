@@ -62,26 +62,36 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
 
         const { title, classification, type, year } = ctx.query;
 
+        const filterConditions = [];
+
         if (title) {
-          filters.$or = [
-            { title: { $containsi: title as string } },
-            { journal_name: { $containsi: title as string } }
-          ];
+          filterConditions.push({
+            $or: [
+              { title: { $containsi: title as string } },
+              { journal_name: { $containsi: title as string } }
+            ]
+          });
         }
 
         if (classification) {
-          filters.indexing_classification = { $eq: classification };
+          filterConditions.push({
+            indexing_classification: { $eq: classification }
+          });
         }
 
         if (type) {
-          filters.publication_type = { $eq: type };
+          filterConditions.push({
+            publication_type: { $eq: type }
+          });
         }
 
         if (year) {
-          filters.publishedAt = {
-            $gte: `${year}-01-01`,
-            $lte: `${year}-12-31`
-          };
+          filterConditions.push({
+            publishedAt: {
+              $gte: `${year}-01-01`,
+              $lte: `${year}-12-31`
+            }
+          });
         }
 
         ctx.query = {
@@ -96,7 +106,9 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
             "impact_factor", "indexing_classification", "publication_type",
             "doi_link", "publishedAt"
           ],
-          filters,
+          filters: {
+            $and: filterConditions
+          },
           sort: "impact_factor:desc",
           "pagination[pageSize]": pageSize,
           "pagination[page]": currentPage

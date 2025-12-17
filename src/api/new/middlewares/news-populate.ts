@@ -41,9 +41,10 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
         // Case 3: single item
         ctx.query = {
           populate: {
-            cover_picture: {
-              fields: ["url", "alternativeText", "caption", "width", "height"],
-            },
+            cover_picture: true
+            // {
+            //   fields: ["url", "alternativeText", "caption", "width", "height"],
+            // },
           },
           fields: ["title", "date", "news_content"],
           "filters[id][$eq]": String(id),
@@ -56,17 +57,23 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
         const pageSize = ctx.query.limit ? String(ctx.query.limit) : "10";
         const { title, year } = ctx.query; // Get search params
 
+        const filterConditions = [];
+
         if (title) {
-          filters.$or = [
-            { title: { $containsi: title as string } }
-          ];
+          filterConditions.push({
+            $or: [
+              { title: { $containsi: title as string } }
+            ]
+          });
         }
 
         if (year) {
-          filters.date = {
-            $gte: `${year}-01-01`,
-            $lte: `${year}-12-31`
-          };
+          filterConditions.push({
+            date: {
+              $gte: `${year}-01-01`,
+              $lte: `${year}-12-31`
+            }
+          });
         }
 
         ctx.query = {
@@ -78,7 +85,9 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
           fields: [
             "title", "date"
           ],
-          filters,
+          filters: {
+            $and: filterConditions
+          },
           sort: "date:desc",
           "pagination[pageSize]": pageSize,
           "pagination[page]": currentPage
