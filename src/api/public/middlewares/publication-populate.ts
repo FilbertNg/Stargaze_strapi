@@ -1,5 +1,38 @@
-// ./src/middlewares/publication-populate.ts (or wherever you have it)
 import type { Core } from '@strapi/strapi';
+
+// --- HELPER: Define the specific fields we want to fetch ---
+// We include 'formats' internally so we can resize, but we delete it later.
+const imageFields = ["url", "name", "caption", "alternativeText", "width", "height", "mime", "size", "formats"];
+
+// --- HELPER: Swaps the main URL with the optimized size ---
+const resizeImage = (entry: any, fieldName: string, sizePreference: 'small' | 'medium' | 'large') => {
+  // Check if the specific field exists on the entry
+  if (!entry || !entry[fieldName] || !entry[fieldName].formats) return;
+
+  const formats = entry[fieldName].formats;
+  let selectedFormat = null;
+
+  // Logic: Try the preferred size, fall back to others if missing
+  if (sizePreference === 'small') {
+    selectedFormat = formats.small || formats.medium || formats.thumbnail;
+  } else if (sizePreference === 'medium') {
+    selectedFormat = formats.medium || formats.small || formats.large;
+  } else if (sizePreference === 'large') {
+    selectedFormat = formats.large || formats.medium || formats.original;
+  }
+
+  // If we found a better format, overwrite the main properties
+  if (selectedFormat) {
+    entry[fieldName].url = selectedFormat.url;
+    entry[fieldName].width = selectedFormat.width;
+    entry[fieldName].height = selectedFormat.height;
+    entry[fieldName].size = selectedFormat.size;
+    entry[fieldName].mime = selectedFormat.mime;
+
+    // Remove the heavy formats object to clean up JSON
+    delete entry[fieldName].formats;
+  }
+};
 
 export default (config, { strapi }: { strapi: Core.Strapi }) => {
   return async (ctx, next) => {
@@ -13,12 +46,11 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
         // Case 1: homepage → top 5 
         ctx.query = {
           populate: {
-            author: true,
             cover_picture: {
-              fields: ["url", "alternativeText", "caption", "width", "height"],
+              fields: imageFields,
             },
           },
-          fields: ["title", "journal_name", "impact_factor", "indexing_classification",  "doi_link"],
+          fields: ["title", "journal_name", "impact_factor", "indexing_classification", "doi_link"],
           sort: "impact_factor:desc",
           "pagination[page]": "1",
           "pagination[pageSize]": "5",
@@ -30,25 +62,22 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
 
         ctx.query = {
           populate: {
-            author: true,
             cover_picture: {
-              fields: ["url", "alternativeText", "caption", "width", "height"],
+              fields: imageFields,
             },
           },
-          fields: ["title", "journal_name", "vol", "issue", "page_start", "page_end", "impact_factor", "indexing_classification", "publication_type", "doi_link","publishedAt"],
+          fields: ["title", "journal_name", "vol", "issue", "page_start", "page_end", "impact_factor", "indexing_classification", "publication_type", "doi_link", "publishedAt"],
           sort: "impact_factor:desc",
           "pagination[page]": currentPage,
           "pagination[pageSize]": pageSize,
         };
       } else if (mode === "detail" && id) {
         // Case 3: single item by ID
-        // Note: This will still return { data: [item], meta: {...} }
-        // We will flatten this to just `item` at the end.
         ctx.query = {
           populate: {
             author: true,
             cover_picture: {
-              fields: ["url", "alternativeText", "caption", "width", "height"],
+              fields: imageFields,
             },
           },
           "filters[id][$eq]": String(id),
@@ -56,7 +85,6 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
         };
       } else if (mode === "searching") {
         // Case 4: searching a specific publication
-        const  filters: Record<string, any> = {};
         const currentPage = ctx.query.page ? String(ctx.query.page) : "1";
         const pageSize = ctx.query.limit ? String(ctx.query.limit) : "10";
 
@@ -96,9 +124,8 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
 
         ctx.query = {
           populate: {
-            author: true,
             cover_picture: {
-              fields: ["url", "alternativeText", "caption", "width", "height"],
+              fields: imageFields,
             },
           },
           fields: [
@@ -125,23 +152,37 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
 
     await next();
 
-    // **MODIFIED RESPONSE FORMATTING**
-    // This now checks the 'mode' we saved earlier to decide how to format the response.
+    // ** IMAGE RESIZING LOGIC **
     if (ctx.body && ctx.body.data !== undefined) {
+
+      const targetSize = (mode === 'detail') ? 'large' : 'small';
+      const dataItems = Array.isArray(ctx.body.data) ? ctx.body.data : [ctx.body.data];
+
+      dataItems.forEach((item) => {
+        // 1. Resize Cover Picture
+        resizeImage(item, 'cover_picture', targetSize);
+
+        // 2. Resize Author Avatar (if exists in your schema)
+        // If authors have images, we usually want them small/thumbnail
+        if (item.author) {
+          const authors = Array.isArray(item.author) ? item.author : [item.author];
+          authors.forEach(auth => {
+            resizeImage(auth, 'avatar', 'small'); // Assuming field is named 'avatar' or similar
+            resizeImage(auth, 'profile_picture', 'small'); // Just in case it's named differently
+          });
+        }
+      });
+
+      // ** RESPONSE FORMATTING **
       if (mode === 'homepage') {
-        // Homepage: Just send the array of data
         strapi.log.info('Middleware: Formatting for homepage (data array).');
         ctx.body = ctx.body.data;
       } else if (mode === 'detail' && id) {
-        // Detail: Send the *first item* from the data array, or null
         strapi.log.info('Middleware: Formatting for detail (single item).');
         ctx.body = ctx.body.data.length > 0 ? ctx.body.data[0] : null;
       } else if (mode === 'list' || mode === 'searching') {
-        // List or Searching: Send the *full payload* { data: [...], meta: {...} }
         strapi.log.info('Middleware: Formatting for list/search (full payload).');
-        // DO NOTHING - pass the full body with data and meta
       } else {
-        // Fallback for unhandled modes
         strapi.log.warn(`Middleware: Unhandled mode '${mode}', passing full payload.`);
       }
     }

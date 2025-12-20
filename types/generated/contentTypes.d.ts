@@ -377,7 +377,7 @@ export interface ApiGrantsNProjectGrantsNProject
   extends Struct.CollectionTypeSchema {
   collectionName: 'grants_n_projects';
   info: {
-    displayName: 'Grants n project';
+    displayName: 'Grants and Projects';
     pluralName: 'grants-n-projects';
     singularName: 'grants-n-project';
   };

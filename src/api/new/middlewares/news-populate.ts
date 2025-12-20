@@ -1,20 +1,52 @@
 import type { Core } from '@strapi/strapi';
 
+// --- HELPER: Define the specific fields we want to fetch ---
+// We include 'formats' internally so we can resize, but we delete it later.
+const imageFields = ["url", "name", "caption", "alternativeText", "width", "height", "mime", "size", "formats"];
+
+// --- HELPER FUNCTION: Swaps the main URL with the optimized size ---
+const resizeImage = (entry: any, sizePreference: 'small' | 'medium' | 'large') => {
+  if (!entry || !entry.cover_picture || !entry.cover_picture.formats) return entry;
+
+  const formats = entry.cover_picture.formats;
+  let selectedFormat = null;
+
+  // Logic: Try the preferred size, fall back to others if missing
+  if (sizePreference === 'small') {
+    selectedFormat = formats.small || formats.medium || formats.thumbnail;
+  } else if (sizePreference === 'medium') {
+    selectedFormat = formats.medium || formats.small || formats.large;
+  } else if (sizePreference === 'large') {
+    selectedFormat = formats.large || formats.medium || formats.original;
+  }
+
+  // If we found a better format, overwrite the main properties
+  if (selectedFormat) {
+    entry.cover_picture.url = selectedFormat.url;
+    entry.cover_picture.width = selectedFormat.width;
+    entry.cover_picture.height = selectedFormat.height;
+    entry.cover_picture.size = selectedFormat.size; // Update size to match the new image
+    entry.cover_picture.mime = selectedFormat.mime; // Update mime to match
+  }
+
+  // **CLEANUP:** Remove 'formats' so the final API response is clean
+  delete entry.cover_picture.formats;
+
+  return entry;
+};
+
 export default (config, { strapi }: { strapi: Core.Strapi }) => {
   return async (ctx, next) => {
     strapi.log.info("In news-populate middleware.");
 
-    // **MODIFICATION: Capture mode before ctx.query is modified**
     const { mode, id } = ctx.query;
 
     if (ctx.request.url.startsWith("/api/news")) {
       if (mode === "homepage") {
-        // Case 1: homepage, based on date
+        // Case 1: homepage
         ctx.query = {
           populate: {
-            cover_picture: {
-              fields: ["url", "alternativeText", "caption", "width", "height"],
-            },
+            cover_picture: { fields: imageFields }
           },
           fields: ["title", "date"],
           sort: "date:desc",
@@ -22,15 +54,13 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
           "pagination[pageSize]": "3",
         };
       } else if (mode === "list") {
-        // Case 2: paginated list, sorted by date
+        // Case 2: paginated list
         const pageSize = ctx.query.limit ? String(ctx.query.limit) : "10";
         const currentPage = ctx.query.page ? String(ctx.query.page) : "1";
 
         ctx.query = {
           populate: {
-            cover_picture: {
-              fields: ["url", "alternativeText", "caption", "width", "height"],
-            },
+            cover_picture: { fields: imageFields }
           },
           fields: ["title", "date"],
           sort: "date:desc",
@@ -41,10 +71,7 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
         // Case 3: single item
         ctx.query = {
           populate: {
-            cover_picture: true
-            // {
-            //   fields: ["url", "alternativeText", "caption", "width", "height"],
-            // },
+            cover_picture: { fields: imageFields }
           },
           fields: ["title", "date", "news_content"],
           "filters[id][$eq]": String(id),
@@ -52,75 +79,57 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
         };
       } else if (mode === "searching") {
         // Case 4: searching
-        const filters: Record<string, any> = {};
         const currentPage = ctx.query.page ? String(ctx.query.page) : "1";
         const pageSize = ctx.query.limit ? String(ctx.query.limit) : "10";
-        const { title, year } = ctx.query; // Get search params
+        const { title, year } = ctx.query;
 
         const filterConditions = [];
-
-        if (title) {
-          filterConditions.push({
-            $or: [
-              { title: { $containsi: title as string } }
-            ]
-          });
-        }
-
-        if (year) {
-          filterConditions.push({
-            date: {
-              $gte: `${year}-01-01`,
-              $lte: `${year}-12-31`
-            }
-          });
-        }
+        if (title) filterConditions.push({ $or: [{ title: { $containsi: title as string } }] });
+        if (year) filterConditions.push({ date: { $gte: `${year}-01-01`, $lte: `${year}-12-31` } });
 
         ctx.query = {
           populate: {
-            cover_picture: {
-              fields: ["url", "alternativeText", "caption", "width", "height"],
-            },
+            cover_picture: { fields: imageFields }
           },
-          fields: [
-            "title", "date"
-          ],
-          filters: {
-            $and: filterConditions
-          },
+          fields: ["title", "date"],
+          filters: { $and: filterConditions },
           sort: "date:desc",
           "pagination[pageSize]": pageSize,
           "pagination[page]": currentPage
         };
       } else {
-        // 🚫 Block everything else
         ctx.status = 400;
-        ctx.body = {
-          error: "Invalid query. Use ?mode=homepage, ?mode=list, ?mode=searching, or ?mode=detail&id=...",
-        };
-        return; // stop here, don't call next()
+        ctx.body = { error: "Invalid query. Use ?mode=homepage, ?mode=list, ?mode=searching, or ?mode=detail&id=..." };
+        return;
       }
     }
 
     await next();
 
     // **MODIFIED RESPONSE FORMATTING**
-    // This now checks the 'mode' we saved earlier
-    if (ctx.body && ctx.body.data !== undefined) {
+    if (ctx.body && ctx.body.data) {
+
+      // 1. Process Images FIRST based on mode
+      if (Array.isArray(ctx.body.data)) {
+        ctx.body.data = ctx.body.data.map((item) => {
+          if (mode === 'homepage' || mode === 'list' || mode === 'searching') {
+            return resizeImage(item, 'small');
+          } else if (mode === 'detail') {
+            return resizeImage(item, 'large');
+          }
+          return item;
+        });
+      }
+
+      // 2. Format JSON Structure
       if (mode === 'homepage') {
-        // Homepage: Just send the array of data
         strapi.log.info('Middleware: Formatting for homepage (data array).');
         ctx.body = ctx.body.data;
       } else if (mode === 'detail' && id) {
-        // Detail: Send the *first item* from the data array, or null
         strapi.log.info('Middleware: Formatting for detail (single item).');
         ctx.body = ctx.body.data.length > 0 ? ctx.body.data[0] : null;
       } else if (mode === 'list' || mode === 'searching') {
-        // List or Searching: Send the *full payload* { data: [...], meta: {...} }
         strapi.log.info('Middleware: Formatting for list/search (full payload).');
-        // DO NOTHING - pass the full body with data and meta
-      } else {
-        strapi.log.warn(`Middleware: Unhandled mode '${mode}', passing full payload.`);
       }
     }
   };
