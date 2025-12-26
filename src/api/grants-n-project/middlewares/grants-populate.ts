@@ -91,7 +91,7 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
         ctx.query = {
           populate: "*",
           ...fullPopulate,
-          "filters[id][$eq]": String(id),
+          "filters[documentId][$eq]": String(id),
           "pagination[pageSize]": "1"
         };
       } else if (mode === "searching") {

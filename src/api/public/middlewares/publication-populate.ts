@@ -85,7 +85,7 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
               fields: ["id", "project_title", "grant_scheme_name", "grant_code", "pi_name", "start_date", "end_date", "total_funding"],
             },
           },
-          "filters[id][$eq]": String(id),
+          "filters[documentId][$eq]": String(id),
           "pagination[pageSize]": "1"
         };
       } else if (mode === "searching") {

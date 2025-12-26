@@ -64,7 +64,7 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
                         }
                     },
                     fields: ["name", "link", "description"],
-                    "filters[id][$eq]": String(id),
+                    "filters[documentId][$eq]": String(id),
                     "pagination[pageSize]": "1"
                 };
             } else {

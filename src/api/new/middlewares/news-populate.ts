@@ -76,7 +76,7 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
             cover_picture: { fields: imageFields }
           },
           fields: ["title", "date", "news_content"],
-          "filters[id][$eq]": String(id),
+          "filters[documentId][$eq]": String(id),
           "pagination[pageSize]": "1"
         };
       } else if (mode === "searching") {
