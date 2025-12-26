@@ -5,7 +5,7 @@ import type { Core } from '@strapi/strapi';
 const imageFields = ["url", "name", "caption", "alternativeText", "width", "height", "mime", "size", "formats"];
 
 // --- HELPER: Swaps the main URL with the optimized size ---
-const resizeImage = (entry: any, fieldName: string, sizePreference: 'small' | 'medium' | 'large') => {
+const resizeImage = (entry: any, fieldName: string, sizePreference: 'small' | 'medium' | 'large' | 'thumbnail') => {
   // Check if the specific field exists on the entry
   if (!entry || !entry[fieldName] || !entry[fieldName].formats) return;
 
@@ -13,7 +13,9 @@ const resizeImage = (entry: any, fieldName: string, sizePreference: 'small' | 'm
   let selectedFormat = null;
 
   // Logic: Try the preferred size, fall back to others if missing
-  if (sizePreference === 'small') {
+  if (sizePreference === 'thumbnail') {
+    selectedFormat = formats.thumbnail || formats.medium || formats.small;
+  } else if (sizePreference === 'small') {
     selectedFormat = formats.small || formats.medium || formats.thumbnail;
   } else if (sizePreference === 'medium') {
     selectedFormat = formats.medium || formats.small || formats.large;
@@ -34,26 +36,10 @@ const resizeImage = (entry: any, fieldName: string, sizePreference: 'small' | 'm
   }
 };
 
-// --- HELPER: Object definition for populating images in lists ---
-// We use this to ensure we fetch images in list/homepage/search modes
-const listPopulate = {
-  graphical_abstract: {
-    fields: imageFields,
-  },
-  collaborator: {
-    fields: ["name", "type"],
-    populate: {
-      logo: {
-        fields: imageFields,
-      },
-    },
-  },
-};
-
 const fullPopulate = {
   populate: {
-    collaborator: {
-      fields: ["name", "type"],
+    collaborators: {
+      fields: ["id", "name", "link"],
       populate: {
         logo: {
           fields: imageFields,
@@ -66,6 +52,9 @@ const fullPopulate = {
     team_members: true, // gets all fields
     project_output: {
       populate: "*", // include everything inside project_output
+    },
+    publications: {
+      fields: ["id", "title", "journal_name", "impact_factor", "indexing_classification"],
     },
   },
 };
@@ -84,7 +73,7 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
           fields: ["project_title", "pi_name", "total_funding", "type_of_grants", "grant_scheme_name", "grant_code", "start_date", "end_date"],
           sort: "total_funding:desc",
           "pagination[page]": "1",
-          "pagination[pageSize]": "3",
+          "pagination[pageSize]": "8",
         };
       } else if (mode === "list") {
         // Case 2: paginated list
@@ -100,6 +89,7 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
       } else if (mode === "detail" && id) {
         // Case 3: single grant
         ctx.query = {
+          populate: "*",
           ...fullPopulate,
           "filters[id][$eq]": String(id),
           "pagination[pageSize]": "1"
@@ -145,8 +135,8 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
       dataItems.forEach((item) => {
         resizeImage(item, 'graphical_abstract', targetSize);
 
-        if (item.collaborator) {
-          const collaborators = Array.isArray(item.collaborator) ? item.collaborator : [item.collaborator];
+        if (item.collaborators) {
+          const collaborators = Array.isArray(item.collaborators) ? item.collaborators : [item.collaborators];
           collaborators.forEach((collab) => {
             resizeImage(collab, 'logo', 'small');
           });

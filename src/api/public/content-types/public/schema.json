@@ -7,7 +7,7 @@
     "displayName": "Publication"
   },
   "options": {
-    "draftAndPublish": false
+    "draftAndPublish": true
   },
   "pluginOptions": {},
   "attributes": {
@@ -103,6 +103,12 @@
     },
     "funding_section": {
       "type": "richtext"
+    },
+    "grants_and_projects": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::grants-n-project.grants-n-project",
+      "mappedBy": "publications"
     }
   }
 }

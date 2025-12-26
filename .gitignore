@@ -136,3 +136,4 @@ build
 ############################
 
 nginx/data/keys.json
+nginx/letsencrypt/accounts/*

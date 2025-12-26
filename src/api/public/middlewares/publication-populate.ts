@@ -5,7 +5,7 @@ import type { Core } from '@strapi/strapi';
 const imageFields = ["url", "name", "caption", "alternativeText", "width", "height", "mime", "size", "formats"];
 
 // --- HELPER: Swaps the main URL with the optimized size ---
-const resizeImage = (entry: any, fieldName: string, sizePreference: 'small' | 'medium' | 'large') => {
+const resizeImage = (entry: any, fieldName: string, sizePreference: 'small' | 'medium' | 'large' | 'thumbnail') => {
   // Check if the specific field exists on the entry
   if (!entry || !entry[fieldName] || !entry[fieldName].formats) return;
 
@@ -13,7 +13,9 @@ const resizeImage = (entry: any, fieldName: string, sizePreference: 'small' | 'm
   let selectedFormat = null;
 
   // Logic: Try the preferred size, fall back to others if missing
-  if (sizePreference === 'small') {
+  if (sizePreference === 'thumbnail') {
+    selectedFormat = formats.thumbnail || formats.medium || formats.small;
+  } else if (sizePreference === 'small') {
     selectedFormat = formats.small || formats.medium || formats.thumbnail;
   } else if (sizePreference === 'medium') {
     selectedFormat = formats.medium || formats.small || formats.large;
@@ -53,7 +55,7 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
           fields: ["title", "journal_name", "impact_factor", "indexing_classification", "doi_link"],
           sort: "impact_factor:desc",
           "pagination[page]": "1",
-          "pagination[pageSize]": "5",
+          "pagination[pageSize]": "8",
         };
       } else if (mode === "list") {
         // Case 2: paginated list, sorted by impact_factor
@@ -78,6 +80,9 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
             author: true,
             cover_picture: {
               fields: imageFields,
+            },
+            grants_and_projects: {
+              fields: ["id", "project_title", "grant_scheme_name", "grant_code", "pi_name", "start_date", "end_date", "total_funding"],
             },
           },
           "filters[id][$eq]": String(id),
@@ -155,7 +160,7 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
     // ** IMAGE RESIZING LOGIC **
     if (ctx.body && ctx.body.data !== undefined) {
 
-      const targetSize = (mode === 'detail') ? 'large' : 'small';
+      const targetSize = (mode === 'detail') ? 'medium' : 'small';
       const dataItems = Array.isArray(ctx.body.data) ? ctx.body.data : [ctx.body.data];
 
       dataItems.forEach((item) => {

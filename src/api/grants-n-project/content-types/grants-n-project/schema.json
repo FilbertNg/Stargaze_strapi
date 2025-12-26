@@ -7,7 +7,7 @@
     "displayName": "Grants and Projects"
   },
   "options": {
-    "draftAndPublish": false
+    "draftAndPublish": true
   },
   "pluginOptions": {},
   "attributes": {
@@ -59,15 +59,15 @@
       "type": "text",
       "required": true
     },
+    "collaborators": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::collaborator.collaborator",
+      "mappedBy": "grants_and_projects"
+    },
     "team_members": {
       "type": "component",
       "component": "list-of-details.person",
-      "repeatable": true,
-      "required": true
-    },
-    "collaborator": {
-      "type": "component",
-      "component": "list-of-details.collaborator",
       "repeatable": true,
       "required": true
     },
@@ -86,6 +86,12 @@
         "videos",
         "audios"
       ]
+    },
+    "publications": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::public.public",
+      "inversedBy": "grants_and_projects"
     }
   }
 }

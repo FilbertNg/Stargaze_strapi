@@ -5,14 +5,16 @@ import type { Core } from '@strapi/strapi';
 const imageFields = ["url", "name", "caption", "alternativeText", "width", "height", "mime", "size", "formats"];
 
 // --- HELPER FUNCTION: Swaps the main URL with the optimized size ---
-const resizeImage = (entry: any, sizePreference: 'small' | 'medium' | 'large') => {
+const resizeImage = (entry: any, sizePreference: 'small' | 'medium' | 'large' | 'thumbnail') => {
   if (!entry || !entry.cover_picture || !entry.cover_picture.formats) return entry;
 
   const formats = entry.cover_picture.formats;
   let selectedFormat = null;
 
   // Logic: Try the preferred size, fall back to others if missing
-  if (sizePreference === 'small') {
+  if (sizePreference === 'thumbnail') {
+    selectedFormat = formats.thumbnail || formats.medium || formats.small;
+  } else if (sizePreference === 'small') {
     selectedFormat = formats.small || formats.medium || formats.thumbnail;
   } else if (sizePreference === 'medium') {
     selectedFormat = formats.medium || formats.small || formats.large;

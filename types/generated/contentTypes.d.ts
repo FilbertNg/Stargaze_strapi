@@ -373,6 +373,42 @@ export interface AdminUser extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiCollaboratorCollaborator
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'collaborators';
+  info: {
+    displayName: 'Collaborator';
+    pluralName: 'collaborators';
+    singularName: 'collaborator';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    description: Schema.Attribute.Text;
+    grants_and_projects: Schema.Attribute.Relation<
+      'manyToMany',
+      'api::grants-n-project.grants-n-project'
+    >;
+    link: Schema.Attribute.String & Schema.Attribute.Required;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::collaborator.collaborator'
+    > &
+      Schema.Attribute.Private;
+    logo: Schema.Attribute.Media<'images'>;
+    name: Schema.Attribute.String & Schema.Attribute.Required;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiGrantsNProjectGrantsNProject
   extends Struct.CollectionTypeSchema {
   collectionName: 'grants_n_projects';
@@ -382,15 +418,14 @@ export interface ApiGrantsNProjectGrantsNProject
     singularName: 'grants-n-project';
   };
   options: {
-    draftAndPublish: false;
+    draftAndPublish: true;
   };
   attributes: {
     citation: Schema.Attribute.Text & Schema.Attribute.Required;
-    collaborator: Schema.Attribute.Component<
-      'list-of-details.collaborator',
-      true
-    > &
-      Schema.Attribute.Required;
+    collaborators: Schema.Attribute.Relation<
+      'manyToMany',
+      'api::collaborator.collaborator'
+    >;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -416,6 +451,7 @@ export interface ApiGrantsNProjectGrantsNProject
     > &
       Schema.Attribute.Required;
     project_title: Schema.Attribute.String & Schema.Attribute.Required;
+    publications: Schema.Attribute.Relation<'manyToMany', 'api::public.public'>;
     publishedAt: Schema.Attribute.DateTime;
     start_date: Schema.Attribute.Date & Schema.Attribute.Required;
     team_members: Schema.Attribute.Component<'list-of-details.person', true> &
@@ -447,7 +483,7 @@ export interface ApiNewNew extends Struct.CollectionTypeSchema {
     singularName: 'new';
   };
   options: {
-    draftAndPublish: false;
+    draftAndPublish: true;
   };
   attributes: {
     cover_picture: Schema.Attribute.Media<'images'> & Schema.Attribute.Required;
@@ -475,7 +511,7 @@ export interface ApiPublicPublic extends Struct.CollectionTypeSchema {
     singularName: 'public';
   };
   options: {
-    draftAndPublish: false;
+    draftAndPublish: true;
   };
   attributes: {
     author: Schema.Attribute.Component<'list-of-details.person', true> &
@@ -488,6 +524,10 @@ export interface ApiPublicPublic extends Struct.CollectionTypeSchema {
     doi_link: Schema.Attribute.String & Schema.Attribute.Required;
     executive_summary: Schema.Attribute.RichText;
     funding_section: Schema.Attribute.RichText;
+    grants_and_projects: Schema.Attribute.Relation<
+      'manyToMany',
+      'api::grants-n-project.grants-n-project'
+    >;
     impact_factor: Schema.Attribute.Decimal;
     indexing_classification: Schema.Attribute.Enumeration<
       [
@@ -546,6 +586,38 @@ export interface ApiStatisticStatistic extends Struct.CollectionTypeSchema {
     > &
       Schema.Attribute.Private;
     publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiTechnologyTechnology extends Struct.CollectionTypeSchema {
+  collectionName: 'technologies';
+  info: {
+    displayName: 'Technology';
+    pluralName: 'technologies';
+    singularName: 'technology';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    content: Schema.Attribute.RichText & Schema.Attribute.Required;
+    cover_picture: Schema.Attribute.Media<'images'>;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    date: Schema.Attribute.Date & Schema.Attribute.Required;
+    link: Schema.Attribute.String;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::technology.technology'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    title: Schema.Attribute.String & Schema.Attribute.Required;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -1061,10 +1133,12 @@ declare module '@strapi/strapi' {
       'admin::transfer-token': AdminTransferToken;
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'admin::user': AdminUser;
+      'api::collaborator.collaborator': ApiCollaboratorCollaborator;
       'api::grants-n-project.grants-n-project': ApiGrantsNProjectGrantsNProject;
       'api::new.new': ApiNewNew;
       'api::public.public': ApiPublicPublic;
       'api::statistic.statistic': ApiStatisticStatistic;
+      'api::technology.technology': ApiTechnologyTechnology;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;
       'plugin::i18n.locale': PluginI18NLocale;

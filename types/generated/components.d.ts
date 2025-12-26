@@ -1,20 +1,5 @@
 import type { Schema, Struct } from '@strapi/strapi';
 
-export interface ListOfDetailsCollaborator extends Struct.ComponentSchema {
-  collectionName: 'components_list_of_details_collaborators';
-  info: {
-    displayName: 'collaborator';
-  };
-  attributes: {
-    logo: Schema.Attribute.Media<'images'>;
-    name: Schema.Attribute.String & Schema.Attribute.Required;
-    type: Schema.Attribute.Enumeration<
-      ['researcher', 'company', 'institution', 'agency']
-    > &
-      Schema.Attribute.Required;
-  };
-}
-
 export interface ListOfDetailsContent extends Struct.ComponentSchema {
   collectionName: 'components_list_of_details_contents';
   info: {
@@ -77,7 +62,6 @@ export interface ListOfDetailsText extends Struct.ComponentSchema {
 declare module '@strapi/strapi' {
   export module Public {
     export interface ComponentSchemas {
-      'list-of-details.collaborator': ListOfDetailsCollaborator;
       'list-of-details.content': ListOfDetailsContent;
       'list-of-details.only-text': ListOfDetailsOnlyText;
       'list-of-details.person': ListOfDetailsPerson;
