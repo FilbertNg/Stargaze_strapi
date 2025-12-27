@@ -6,9 +6,9 @@ const imageFields = ["url", "name", "caption", "alternativeText", "width", "heig
 
 // --- HELPER FUNCTION: Swaps the main URL with the optimized size ---
 const resizeImage = (entry: any, sizePreference: 'small' | 'medium' | 'large' | 'thumbnail') => {
-    if (!entry || !entry.cover_picture || !entry.cover_picture.formats) return entry;
+    if (!entry || !entry.logo || !entry.logo.formats) return entry;
 
-    const formats = entry.cover_picture.formats;
+    const formats = entry.logo.formats;
     let selectedFormat = null;
 
     // Logic: Try the preferred size, fall back to others if missing
@@ -24,15 +24,15 @@ const resizeImage = (entry: any, sizePreference: 'small' | 'medium' | 'large' | 
 
     // If we found a better format, overwrite the main properties
     if (selectedFormat) {
-        entry.cover_picture.url = selectedFormat.url;
-        entry.cover_picture.width = selectedFormat.width;
-        entry.cover_picture.height = selectedFormat.height;
-        entry.cover_picture.size = selectedFormat.size; // Update size to match the new image
-        entry.cover_picture.mime = selectedFormat.mime; // Update mime to match
+        entry.logo.url = selectedFormat.url;
+        entry.logo.width = selectedFormat.width;
+        entry.logo.height = selectedFormat.height;
+        entry.logo.size = selectedFormat.size; // Update size to match the new image
+        entry.logo.mime = selectedFormat.mime; // Update mime to match
     }
 
     // **CLEANUP:** Remove 'formats' so the final API response is clean
-    delete entry.cover_picture.formats;
+    delete entry.logo.formats;
 
     return entry;
 };
