@@ -1,30 +1,20 @@
-version: "3"
 services:
   strapi:
     container_name: strapi
-    # We use the built image, so we don't map source code volumes
     build: .
     image: strapi:latest
     restart: unless-stopped
     env_file: .env
     environment:
-      DATABASE_CLIENT: ${DATABASE_CLIENT}
       DATABASE_HOST: strapiDB
-      DATABASE_PORT: ${DATABASE_PORT}
-      DATABASE_NAME: ${DATABASE_NAME}
-      DATABASE_USERNAME: ${DATABASE_USERNAME}
-      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
-      JWT_SECRET: ${JWT_SECRET}
-      ADMIN_JWT_SECRET: ${ADMIN_JWT_SECRET}
-      APP_KEYS: ${APP_KEYS}
-      NODE_ENV: production # Force production mode
+      NODE_ENV: production
+
     volumes:
-      # ONLY map uploads. We do NOT map src, package.json, or yarn.lock
       - ./public/uploads:/opt/app/public/uploads
     ports:
       - "1337:1337"
     networks:
-      - strapi
+      - stargaze-network
     depends_on:
       - strapiDB
 
@@ -35,33 +25,32 @@ services:
     env_file: .env
     image: postgres:16.0-alpine
     environment:
+      # We need to map these explicitly because the image expects specific names
       POSTGRES_USER: ${DATABASE_USERNAME}
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
       POSTGRES_DB: ${DATABASE_NAME}
     volumes:
       - strapi-data:/var/lib/postgresql/data/
-    # REMOVED: ports section (Security best practice)
     networks:
-      - strapi
+      - stargaze-network
 
   reverse-proxy:
     image: 'jc21/nginx-proxy-manager:latest'
     restart: unless-stopped
     ports:
-      - '80:80' # Public HTTP
-      - '81:81' # Admin Dashboard for Nginx
-      - '443:443' # Public HTTPS
+      - '80:80'
+      - '81:81'
+      - '443:443'
     volumes:
       - ./nginx/data:/data
       - ./nginx/letsencrypt:/etc/letsencrypt
     networks:
-      - strapi
+      - stargaze-network
 
 volumes:
   strapi-data:
 
 
 networks:
-  strapi:
-    name: strapi
-    driver: bridge
+  stargaze-network:
+    external: true
