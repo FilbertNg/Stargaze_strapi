@@ -5,7 +5,7 @@ import type { Core } from '@strapi/strapi';
 const imageFields = ["url", "name", "caption", "alternativeText", "width", "height", "mime", "size", "formats"];
 
 // --- HELPER FUNCTION: Swaps the main URL with the optimized size ---
-const resizeImage = (entry: any, sizePreference: 'small' | 'medium' | 'large' | 'thumbnail') => {
+const resizeImage = (entry: any, sizePreference: 'small' | 'medium' | 'large' | 'thumbnail' | 'original') => {
     if (!entry || !entry.logo || !entry.logo.formats) return entry;
 
     const formats = entry.logo.formats;
@@ -13,7 +13,7 @@ const resizeImage = (entry: any, sizePreference: 'small' | 'medium' | 'large' | 
 
     // Logic: Try the preferred size, fall back to others if missing
     if (sizePreference === 'thumbnail') {
-        selectedFormat = formats.thumbnail;
+        selectedFormat = formats.thumbnail || formats.medium || formats.small;
     } else if (sizePreference === 'small') {
         selectedFormat = formats.small || formats.medium || formats.thumbnail;
     } else if (sizePreference === 'medium') {
@@ -83,9 +83,13 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
             if (Array.isArray(ctx.body.data)) {
                 ctx.body.data = ctx.body.data.map((item) => {
                     if (mode === 'homepage') {
-                        return resizeImage(item, 'thumbnail');
+                        const size = item.logo?.size;
+                        if (size && size > 100) {
+                            return resizeImage(item, 'original');
+                        }
+                        return resizeImage(item, 'large');
                     } else if (mode === 'detail') {
-                        return resizeImage(item, 'medium');
+                        return resizeImage(item, 'original');
                     }
                     return item;
                 });

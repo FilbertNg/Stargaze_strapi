@@ -5,7 +5,7 @@ import type { Core } from '@strapi/strapi';
 const imageFields = ["url", "name", "caption", "alternativeText", "width", "height", "mime", "size", "formats"];
 
 // --- HELPER: Swaps the main URL with the optimized size ---
-const resizeImage = (entry: any, fieldName: string, sizePreference: 'small' | 'medium' | 'large' | 'thumbnail') => {
+const resizeImage = (entry: any, fieldName: string, sizePreference: 'small' | 'medium' | 'large' | 'thumbnail' | 'original') => {
   // Check if the specific field exists on the entry
   if (!entry || !entry[fieldName] || !entry[fieldName].formats) return;
 
@@ -20,7 +20,7 @@ const resizeImage = (entry: any, fieldName: string, sizePreference: 'small' | 'm
   } else if (sizePreference === 'medium') {
     selectedFormat = formats.medium || formats.small || formats.large;
   } else if (sizePreference === 'large') {
-    selectedFormat = formats.large || formats.medium || formats.original;
+    selectedFormat = formats.large || formats.medium || formats.small || formats.thumbnail || formats.original;
   }
 
   // If we found a better format, overwrite the main properties
@@ -70,8 +70,8 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
       if (mode === "homepage") {
         // Case 1: homepage 
         ctx.query = {
-          fields: ["project_title", "pi_name", "total_funding", "type_of_grants", "grant_scheme_name", "grant_code", "start_date", "end_date"],
-          sort: "total_funding:desc",
+          fields: ["project_title", "pi_name", "total_funding", "type_of_grants", "grant_scheme_name", "grant_code", "start_date", "end_date", "funder"],
+          sort: "start_date:desc",
           "pagination[page]": "1",
           "pagination[pageSize]": "8",
         };
@@ -81,8 +81,8 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
         const currentPage = page ? String(page) : "1";
 
         ctx.query = {
-          fields: ["project_title", "pi_name", "total_funding", "type_of_grants", "grant_scheme_name", "grant_code", "start_date", "end_date"],
-          sort: "total_funding:desc",
+          fields: ["project_title", "pi_name", "total_funding", "type_of_grants", "grant_scheme_name", "grant_code", "start_date", "end_date", "funder"],
+          sort: "start_date:desc",
           "pagination[page]": currentPage,
           "pagination[pageSize]": pageSize,
         };
@@ -113,9 +113,9 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
         }
 
         ctx.query = {
-          fields: ["project_title", "pi_name", "total_funding", "type_of_grants", "grant_scheme_name", "grant_code", "start_date", "end_date"],
+          fields: ["project_title", "pi_name", "total_funding", "type_of_grants", "grant_scheme_name", "grant_code", "start_date", "end_date", "funder"],
           filters: { $and: filterConditions },
-          sort: "total_funding:desc",
+          sort: "start_date:desc",
           "pagination[pageSize]": pageSize,
           "pagination[page]": currentPage
         };
@@ -130,10 +130,18 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
 
     // ** IMAGE RESIZING LOGIC **
     if (ctx.body && ctx.body.data) {
-      const targetSize = (mode === 'detail') ? 'large' : 'small';
       const dataItems = Array.isArray(ctx.body.data) ? ctx.body.data : [ctx.body.data];
       dataItems.forEach((item) => {
-        resizeImage(item, 'graphical_abstract', targetSize);
+        if (mode === 'detail') {
+          const originalSize = item.graphical_abstract?.size;
+          if (originalSize && originalSize > 2000) {
+            resizeImage(item, 'graphical_abstract', 'large');
+          } else {
+            resizeImage(item, 'graphical_abstract', 'original');
+          }
+        } else {
+          resizeImage(item, 'graphical_abstract', 'small');
+        }
 
         if (item.collaborators) {
           const collaborators = Array.isArray(item.collaborators) ? item.collaborators : [item.collaborators];

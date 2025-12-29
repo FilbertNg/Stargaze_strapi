@@ -5,7 +5,7 @@ import type { Core } from '@strapi/strapi';
 const imageFields = ["url", "name", "caption", "alternativeText", "width", "height", "mime", "size", "formats"];
 
 // --- HELPER: Swaps the main URL with the optimized size ---
-const resizeImage = (entry: any, fieldName: string, sizePreference: 'small' | 'medium' | 'large' | 'thumbnail') => {
+const resizeImage = (entry: any, fieldName: string, sizePreference: 'small' | 'medium' | 'large' | 'thumbnail' | 'original') => {
   // Check if the specific field exists on the entry
   if (!entry || !entry[fieldName] || !entry[fieldName].formats) return;
 
@@ -20,7 +20,7 @@ const resizeImage = (entry: any, fieldName: string, sizePreference: 'small' | 'm
   } else if (sizePreference === 'medium') {
     selectedFormat = formats.medium || formats.small || formats.large;
   } else if (sizePreference === 'large') {
-    selectedFormat = formats.large || formats.medium || formats.original;
+    selectedFormat = formats.large || formats.medium || formats.small || formats.thumbnail || formats.original;
   }
 
   // If we found a better format, overwrite the main properties
@@ -160,12 +160,20 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
     // ** IMAGE RESIZING LOGIC **
     if (ctx.body && ctx.body.data !== undefined) {
 
-      const targetSize = (mode === 'detail') ? 'medium' : 'small';
       const dataItems = Array.isArray(ctx.body.data) ? ctx.body.data : [ctx.body.data];
 
       dataItems.forEach((item) => {
         // 1. Resize Cover Picture
-        resizeImage(item, 'cover_picture', targetSize);
+        if (mode === 'detail') {
+          const originalSize = item.cover_picture?.size;
+          if (originalSize && originalSize > 2000) {
+            resizeImage(item, 'cover_picture', 'large');
+          } else {
+            resizeImage(item, 'cover_picture', 'original');
+          }
+        } else {
+          resizeImage(item, 'cover_picture', 'small');
+        }
 
         // 2. Resize Author Avatar (if exists in your schema)
         // If authors have images, we usually want them small/thumbnail

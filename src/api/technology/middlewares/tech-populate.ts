@@ -5,7 +5,7 @@ import type { Core } from '@strapi/strapi';
 const imageFields = ["url", "name", "caption", "alternativeText", "width", "height", "mime", "size", "formats"];
 
 // --- HELPER FUNCTION: Swaps the main URL with the optimized size ---
-const resizeImage = (entry: any, sizePreference: 'small' | 'medium' | 'large' | 'thumbnail') => {
+const resizeImage = (entry: any, sizePreference: 'small' | 'medium' | 'large' | 'thumbnail' | 'original') => {
     if (!entry || !entry.cover_picture || !entry.cover_picture.formats) return entry;
 
     const formats = entry.cover_picture.formats;
@@ -19,7 +19,7 @@ const resizeImage = (entry: any, sizePreference: 'small' | 'medium' | 'large' | 
     } else if (sizePreference === 'medium') {
         selectedFormat = formats.medium || formats.small || formats.large;
     } else if (sizePreference === 'large') {
-        selectedFormat = formats.large || formats.medium || formats.original;
+        selectedFormat = formats.large || formats.medium || formats.small || formats.thumbnail || formats.original;
     }
 
     // If we found a better format, overwrite the main properties
@@ -117,7 +117,12 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
                     if (mode === 'homepage' || mode === 'list' || mode === 'searching') {
                         return resizeImage(item, 'small');
                     } else if (mode === 'detail') {
-                        return resizeImage(item, 'large');
+                        const originalSize = item.cover_picture?.size;
+                        // Check if original size is > 2000 (KB), if so try access smaller formats
+                        if (originalSize && originalSize > 2000) {
+                            return resizeImage(item, 'large');
+                        }
+                        return resizeImage(item, 'original');
                     }
                     return item;
                 });
