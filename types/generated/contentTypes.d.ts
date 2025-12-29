@@ -393,7 +393,7 @@ export interface ApiCollaboratorCollaborator
       'manyToMany',
       'api::grants-n-project.grants-n-project'
     >;
-    link: Schema.Attribute.String & Schema.Attribute.Required;
+    link: Schema.Attribute.String;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -421,7 +421,7 @@ export interface ApiGrantsNProjectGrantsNProject
     draftAndPublish: true;
   };
   attributes: {
-    citation: Schema.Attribute.Text & Schema.Attribute.Required;
+    citation: Schema.Attribute.Text;
     collaborators: Schema.Attribute.Relation<
       'manyToMany',
       'api::collaborator.collaborator'
@@ -429,9 +429,13 @@ export interface ApiGrantsNProjectGrantsNProject
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    end_date: Schema.Attribute.Date & Schema.Attribute.Required;
-    grant_code: Schema.Attribute.String & Schema.Attribute.Required;
-    grant_scheme_name: Schema.Attribute.String & Schema.Attribute.Required;
+    end_date: Schema.Attribute.Date;
+    funder: Schema.Attribute.String;
+    grant_code: Schema.Attribute.String;
+    grant_scheme_name: Schema.Attribute.String;
+    grant_status: Schema.Attribute.Enumeration<
+      ['In Progress', 'Completed', 'Delayed']
+    >;
     graphical_abstract: Schema.Attribute.Media<
       'images' | 'files' | 'videos' | 'audios'
     >;
@@ -441,23 +445,17 @@ export interface ApiGrantsNProjectGrantsNProject
       'api::grants-n-project.grants-n-project'
     > &
       Schema.Attribute.Private;
-    on_time: Schema.Attribute.Boolean &
-      Schema.Attribute.Required &
-      Schema.Attribute.DefaultTo<false>;
-    pi_name: Schema.Attribute.String & Schema.Attribute.Required;
+    pi_name: Schema.Attribute.String;
     project_output: Schema.Attribute.Component<
       'list-of-details.project-output',
       false
-    > &
-      Schema.Attribute.Required;
+    >;
     project_title: Schema.Attribute.String & Schema.Attribute.Required;
     publications: Schema.Attribute.Relation<'manyToMany', 'api::public.public'>;
     publishedAt: Schema.Attribute.DateTime;
     start_date: Schema.Attribute.Date & Schema.Attribute.Required;
-    team_members: Schema.Attribute.Component<'list-of-details.person', true> &
-      Schema.Attribute.Required;
+    team_members: Schema.Attribute.Component<'list-of-details.person', true>;
     total_funding: Schema.Attribute.BigInteger &
-      Schema.Attribute.Required &
       Schema.Attribute.SetMinMax<
         {
           min: '0';
@@ -467,8 +465,7 @@ export interface ApiGrantsNProjectGrantsNProject
       Schema.Attribute.DefaultTo<'0'>;
     type_of_grants: Schema.Attribute.Enumeration<
       ['national grants', 'industry grants', 'internal grants']
-    > &
-      Schema.Attribute.Required;
+    >;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -486,15 +483,15 @@ export interface ApiNewNew extends Struct.CollectionTypeSchema {
     draftAndPublish: true;
   };
   attributes: {
-    cover_picture: Schema.Attribute.Media<'images'> & Schema.Attribute.Required;
+    cover_picture: Schema.Attribute.Media<'images'>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    date: Schema.Attribute.Date & Schema.Attribute.Required;
+    date: Schema.Attribute.Date;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::new.new'> &
       Schema.Attribute.Private;
-    news_content: Schema.Attribute.RichText & Schema.Attribute.Required;
+    news_content: Schema.Attribute.RichText;
     publishedAt: Schema.Attribute.DateTime;
     title: Schema.Attribute.String & Schema.Attribute.Required;
     updatedAt: Schema.Attribute.DateTime;
@@ -514,14 +511,14 @@ export interface ApiPublicPublic extends Struct.CollectionTypeSchema {
     draftAndPublish: true;
   };
   attributes: {
-    author: Schema.Attribute.Component<'list-of-details.person', true> &
-      Schema.Attribute.Required;
+    author: Schema.Attribute.Component<'list-of-details.person', true>;
     citation: Schema.Attribute.Text;
-    cover_picture: Schema.Attribute.Media<'images'> & Schema.Attribute.Required;
+    cover_picture: Schema.Attribute.Media<'images'>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    doi_link: Schema.Attribute.String & Schema.Attribute.Required;
+    date: Schema.Attribute.Date;
+    doi_link: Schema.Attribute.String;
     executive_summary: Schema.Attribute.RichText;
     funding_section: Schema.Attribute.RichText;
     grants_and_projects: Schema.Attribute.Relation<
@@ -541,7 +538,7 @@ export interface ApiPublicPublic extends Struct.CollectionTypeSchema {
       ]
     >;
     issue: Schema.Attribute.Integer;
-    journal_name: Schema.Attribute.String & Schema.Attribute.Required;
+    journal_name: Schema.Attribute.String;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -552,8 +549,7 @@ export interface ApiPublicPublic extends Struct.CollectionTypeSchema {
     page_start: Schema.Attribute.Integer;
     publication_type: Schema.Attribute.Enumeration<
       ['technical', 'review', 'granted patent', 'filed patent']
-    > &
-      Schema.Attribute.Required;
+    >;
     publishedAt: Schema.Attribute.DateTime;
     title: Schema.Attribute.String & Schema.Attribute.Required;
     updatedAt: Schema.Attribute.DateTime;
@@ -603,12 +599,12 @@ export interface ApiTechnologyTechnology extends Struct.CollectionTypeSchema {
     draftAndPublish: true;
   };
   attributes: {
-    content: Schema.Attribute.RichText & Schema.Attribute.Required;
+    content: Schema.Attribute.RichText;
     cover_picture: Schema.Attribute.Media<'images'>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    date: Schema.Attribute.Date & Schema.Attribute.Required;
+    date: Schema.Attribute.Date;
     link: Schema.Attribute.String;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<

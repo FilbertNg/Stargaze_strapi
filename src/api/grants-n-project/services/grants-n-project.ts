@@ -13,7 +13,7 @@ export default factories.createCoreService('api::grants-n-project.grants-n-proje
             $ne: null, // This excludes Drafts
           },
         },
-        select: ['total_funding', 'on_time', 'type_of_grants'],
+        select: ['total_funding', 'grant_status', 'type_of_grants'],
         populate: {
           project_output: {
             fields: ['master', 'phd'],
@@ -29,16 +29,16 @@ export default factories.createCoreService('api::grants-n-project.grants-n-proje
     const totalIndustryGrants = grants.reduce((sum, g: any) => sum + Number(g.type_of_grants === "industry grants" || 0), 0);
     const totalInternalGrants = grants.reduce((sum, g: any) => sum + Number(g.type_of_grants === "internal grants" || 0), 0);
 
-    const deliveryRate = totalGrants > 0
-      ? grants.reduce((sum, g: any) => sum + Number(g.on_time === true || 0), 0) / totalGrants
-      : 0;
+    const totalProgressGrants = grants.reduce((sum, g: any) => sum + Number(g.grant_status === "In Progress" || 0), 0);
+    const totalCompletedGrants = grants.reduce((sum, g: any) => sum + Number(g.grant_status === "Completed" || 0), 0);
+    const totalDelayedGrants = grants.reduce((sum, g: any) => sum + Number(g.grant_status === "Delayed" || 0), 0);
 
     const totalPaper = grants.reduce((sum, g: any) => sum + Number(g.project_output?.paper_citation?.length || 0), 0);
     const totalPatent = grants.reduce((sum, g: any) => sum + Number(g.project_output?.patent_citation?.length || 0), 0);
     const totalMaster = grants.reduce((sum, g: any) => sum + Number(g.project_output?.master || 0), 0);
     const totalPhd = grants.reduce((sum, g: any) => sum + Number(g.project_output?.phd || 0), 0);
 
-    const stats = { totalFunding, totalGrants, totalNationalGrants, totalIndustryGrants, totalInternalGrants, deliveryRate, totalPaper, totalPatent, totalMaster, totalPhd };
+    const stats = { totalFunding, totalGrants, totalNationalGrants, totalIndustryGrants, totalInternalGrants, totalProgressGrants, totalCompletedGrants, totalDelayedGrants, totalPaper, totalPatent, totalMaster, totalPhd };
 
     // Store stats in a single record in a "statistic" collection or even in strapi store    
     const existing = await strapi.db

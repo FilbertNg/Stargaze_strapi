@@ -7,7 +7,7 @@
   "attributes": {
     "person": {
       "type": "string",
-      "required": true
+      "required": false
     }
   },
   "config": {}

@@ -17,19 +17,19 @@
     },
     "date": {
       "type": "date",
-      "required": true
+      "required": false
     },
     "cover_picture": {
       "type": "media",
       "multiple": false,
-      "required": true,
+      "required": false,
       "allowedTypes": [
         "images"
       ]
     },
     "news_content": {
       "type": "richtext",
-      "required": true
+      "required": false
     }
   }
 }

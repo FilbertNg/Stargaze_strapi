@@ -15,21 +15,24 @@
       "type": "string",
       "required": true
     },
+    "funder": {
+      "type": "string"
+    },
     "pi_name": {
       "type": "string",
-      "required": true
+      "required": false
     },
     "grant_scheme_name": {
       "type": "string",
-      "required": true
+      "required": false
     },
     "grant_code": {
       "type": "string",
-      "required": true
+      "required": false
     },
     "type_of_grants": {
       "type": "enumeration",
-      "required": true,
+      "required": false,
       "enum": [
         "national grants",
         "industry grants",
@@ -38,7 +41,7 @@
     },
     "total_funding": {
       "type": "biginteger",
-      "required": true,
+      "required": false,
       "default": "0",
       "min": "0"
     },
@@ -48,16 +51,19 @@
     },
     "end_date": {
       "type": "date",
-      "required": true
+      "required": false
     },
-    "on_time": {
-      "type": "boolean",
-      "required": true,
-      "default": false
+    "grant_status": {
+      "type": "enumeration",
+      "enum": [
+        "In Progress",
+        "Completed",
+        "Delayed"
+      ]
     },
     "citation": {
       "type": "text",
-      "required": true
+      "required": false
     },
     "collaborators": {
       "type": "relation",
@@ -69,13 +75,13 @@
       "type": "component",
       "component": "list-of-details.person",
       "repeatable": true,
-      "required": true
+      "required": false
     },
     "project_output": {
       "type": "component",
       "component": "list-of-details.project-output",
       "repeatable": false,
-      "required": true
+      "required": false
     },
     "graphical_abstract": {
       "type": "media",

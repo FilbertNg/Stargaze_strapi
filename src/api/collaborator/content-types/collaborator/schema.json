@@ -24,7 +24,7 @@
     },
     "link": {
       "type": "string",
-      "required": true
+      "required": false
     },
     "description": {
       "type": "text"

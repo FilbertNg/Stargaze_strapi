@@ -26,7 +26,7 @@ export interface ListOfDetailsPerson extends Struct.ComponentSchema {
     displayName: 'person';
   };
   attributes: {
-    person: Schema.Attribute.String & Schema.Attribute.Required;
+    person: Schema.Attribute.String;
   };
 }
 
