@@ -6,7 +6,8 @@ export default [
     name: 'strapi::cors',
     config: {
       origin: [
-        'https://stargaze-research.com'
+        'https://stargaze-research.com',
+        '*'
       ],
       headers: ['Content-Type', 'Authorization', 'Origin', 'Accept'],
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'],
