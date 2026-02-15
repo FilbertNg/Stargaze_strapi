@@ -120,7 +120,7 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
 
         if (year) {
           filterConditions.push({
-            publishedAt: {
+            date: {
               $gte: `${year}-01-01`,
               $lte: `${year}-12-31`
             }
