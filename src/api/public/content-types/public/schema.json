@@ -40,10 +40,7 @@
       "type": "integer"
     },
     "author": {
-      "type": "component",
-      "component": "list-of-details.person",
-      "repeatable": true,
-      "required": false
+      "type": "text"
     },
     "date": {
       "type": "date"

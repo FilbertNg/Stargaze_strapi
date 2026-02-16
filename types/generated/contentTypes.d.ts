@@ -511,7 +511,7 @@ export interface ApiPublicPublic extends Struct.CollectionTypeSchema {
     draftAndPublish: true;
   };
   attributes: {
-    author: Schema.Attribute.Component<'list-of-details.person', true>;
+    author: Schema.Attribute.Text;
     citation: Schema.Attribute.Text;
     cover_picture: Schema.Attribute.Media<'images'>;
     createdAt: Schema.Attribute.DateTime;
