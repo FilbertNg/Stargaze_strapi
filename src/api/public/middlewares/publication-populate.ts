@@ -77,7 +77,6 @@ export default (config, { strapi }: { strapi: Core.Strapi }) => {
         // Case 3: single item by ID
         ctx.query = {
           populate: {
-            author: true,
             cover_picture: {
               fields: imageFields,
             },
